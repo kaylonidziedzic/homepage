@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div class="bg-glow glow-1"></div>
+  <div class="bg-glow glow-2"></div>
   <div class="page">
     <header class="topbar">
       <div class="branding">
@@ -25,6 +27,7 @@
 
     <section class="controls">
       <div class="control-group search-group">
+        <span class="input-icon">🔎</span>
         <input id="searchInput" type="search" placeholder="搜索名称、描述、标签、服务器..." />
         <button id="clearSearch" class="icon-btn" title="清除搜索">✕</button>
       </div>
@@ -47,7 +50,13 @@
     <section id="groups" class="groups"></section>
 
     <section id="addForm" class="panel" hidden>
-      <div class="panel-title">新增服务</div>
+      <div class="panel-head">
+        <div>
+          <div class="panel-title" id="formTitle">新增服务</div>
+          <div class="panel-subtitle" id="formSubtitle">解锁后可新增或编辑，保存后本地自动记住</div>
+        </div>
+        <button type="button" id="cancelEdit" class="btn tertiary" hidden>取消编辑</button>
+      </div>
       <form id="serviceForm" class="form-grid">
         <label>名称<input name="name" required /></label>
         <label>描述<input name="description" /></label>
@@ -58,7 +67,7 @@
         <label>认证方式/账号<input name="auth" placeholder="例如 basic / token / 账号" /></label>
         <label>标签（逗号分隔）<input name="tags" placeholder="prod, monitoring" /></label>
         <div class="form-actions">
-          <button type="submit" class="btn primary">添加</button>
+          <button id="submitBtn" type="submit" class="btn primary">添加</button>
           <button type="button" id="resetForm" class="btn secondary">重置</button>
         </div>
       </form>

@@ -1,14 +1,17 @@
 :root {
   color-scheme: light;
-  --bg: #f6f7fb;
+  --bg: radial-gradient(circle at 20% 20%, #e0e7ff 0, transparent 25%),
+    radial-gradient(circle at 80% 0%, #c7f0ff 0, transparent 30%),
+    #f6f7fb;
   --card: #ffffff;
-  --text: #101828;
+  --text: #0f172a;
   --muted: #475467;
   --border: #e4e7ec;
   --accent: #3b82f6;
   --accent-strong: #1d4ed8;
   --success: #16a34a;
-  --shadow: 0 10px 30px rgba(16, 24, 40, 0.08);
+  --shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+  --glass: rgba(255, 255, 255, 0.8);
 }
 
 * {
@@ -22,10 +25,33 @@ body {
   color: var(--text);
 }
 
+.bg-glow {
+  position: fixed;
+  width: 360px;
+  height: 360px;
+  filter: blur(120px);
+  opacity: 0.4;
+  z-index: 0;
+}
+
+.glow-1 {
+  background: #93c5fd;
+  top: -120px;
+  left: -120px;
+}
+
+.glow-2 {
+  background: #a5b4fc;
+  bottom: -160px;
+  right: -120px;
+}
+
 .page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 24px 20px 48px;
+  padding: 32px 20px 60px;
+  position: relative;
+  z-index: 1;
 }
 
 .topbar {
@@ -33,7 +59,7 @@ body {
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   flex-wrap: wrap;
 }
 
@@ -56,8 +82,8 @@ body {
 .controls {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 14px;
+  margin-bottom: 16px;
 }
 
 .control-group {
@@ -68,11 +94,15 @@ body {
 }
 
 .search-group {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 10px 12px;
+  background: var(--glass);
+  border: 1px solid rgba(228, 231, 236, 0.9);
+  border-radius: 14px;
+  padding: 12px 14px;
   box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .search-group input {
@@ -81,6 +111,7 @@ body {
   border: none;
   outline: none;
   font-size: 15px;
+  background: transparent;
 }
 
 .icon-btn {
@@ -91,12 +122,19 @@ body {
   color: var(--muted);
 }
 
+.input-icon {
+  color: var(--accent-strong);
+  font-size: 16px;
+  opacity: 0.8;
+}
+
 .filters select {
   padding: 10px 12px;
   border-radius: 12px;
   border: 1px solid var(--border);
-  background: var(--card);
+  background: var(--glass);
   min-width: 140px;
+  box-shadow: var(--shadow);
 }
 
 .toggle {
@@ -109,12 +147,12 @@ body {
 
 .btn {
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 8px 12px;
+  border-radius: 12px;
+  padding: 9px 13px;
   cursor: pointer;
   font-size: 14px;
   background: var(--card);
-  transition: background 0.15s ease, transform 0.1s ease;
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
 }
 
 .btn.primary {
@@ -124,9 +162,16 @@ body {
   box-shadow: var(--shadow);
 }
 
+.btn.tertiary {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--accent-strong);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
 .btn.secondary:hover,
 .btn.primary:hover {
   transform: translateY(-1px);
+  box-shadow: var(--shadow);
 }
 
 .btn:disabled,
@@ -152,6 +197,7 @@ body {
   gap: 8px;
   flex-wrap: wrap;
   margin-bottom: 12px;
+  margin-top: 6px;
 }
 
 .chip {
@@ -185,6 +231,14 @@ body {
   color: var(--muted);
 }
 
+.group-title {
+  font-weight: 700;
+}
+
+.group-meta {
+  font-size: 13px;
+}
+
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -192,15 +246,28 @@ body {
 }
 
 .card {
-  background: var(--card);
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  padding: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 249, 255, 0.9));
+  border-radius: 18px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  padding: 16px;
   box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
   gap: 10px;
   position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  border: 1px solid transparent;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 24, 40, 0)) border-box;
+  mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 .card .title-row {
@@ -298,9 +365,23 @@ body {
   margin-top: 16px;
 }
 
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .panel-title {
   font-weight: 700;
   margin-bottom: 12px;
+  font-size: 18px;
+}
+
+.panel-subtitle {
+  color: var(--muted);
+  margin-top: -6px;
+  margin-bottom: 10px;
 }
 
 .form-grid {

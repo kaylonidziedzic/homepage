@@ -7,6 +7,7 @@ const STORAGE_KEYS = {
 let services = [];
 let servers = [];
 let unlocked = false;
+let editingId = null;
 
 const state = {
   search: "",
@@ -30,6 +31,10 @@ const elements = {
   addFormSection: document.getElementById("addForm"),
   form: document.getElementById("serviceForm"),
   resetForm: document.getElementById("resetForm"),
+  submitBtn: document.getElementById("submitBtn"),
+  cancelEdit: document.getElementById("cancelEdit"),
+  formTitle: document.getElementById("formTitle"),
+  formSubtitle: document.getElementById("formSubtitle"),
   toast: document.getElementById("toast"),
 };
 
@@ -72,7 +77,8 @@ function bindEvents() {
   elements.unlockButton.addEventListener("click", handleUnlock);
   elements.exportButton.addEventListener("click", handleExport);
   elements.importInput.addEventListener("change", handleImport);
-  elements.resetForm.addEventListener("click", () => elements.form.reset());
+  elements.resetForm.addEventListener("click", resetEditing);
+  elements.cancelEdit.addEventListener("click", resetEditing);
 
   elements.form.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -83,8 +89,7 @@ function bindEvents() {
       .map((t) => t.trim())
       .filter(Boolean);
 
-    const newService = {
-      id: `svc-${Date.now()}`,
+    const payload = {
       name: data.get("name").trim(),
       description: data.get("description").trim(),
       purpose: data.get("purpose").trim(),
@@ -95,15 +100,32 @@ function bindEvents() {
       tags,
     };
 
-    services = [newService, ...services];
-    if (!servers.find((s) => s.name === newService.server)) {
-      servers = [...servers, { name: newService.server, note: "" }];
+    if (editingId) {
+      services = services.map((svc) =>
+        svc.id === editingId
+          ? {
+              ...svc,
+              ...payload,
+            }
+          : svc
+      );
+      showToast("已保存修改");
+    } else {
+      const newService = {
+        id: `svc-${Date.now()}`,
+        ...payload,
+      };
+      services = [newService, ...services];
+      showToast("已新增服务");
+    }
+
+    if (!servers.find((s) => s.name === payload.server)) {
+      servers = [...servers, { name: payload.server, note: "" }];
     }
     persist();
     renderFilters();
     render();
-    elements.form.reset();
-    showToast("已新增服务");
+    resetEditing();
   });
 }
 
@@ -208,6 +230,7 @@ function renderCard(svc) {
         <a class="btn primary" href="${svc.url}" target="_blank" rel="noopener noreferrer">打开</a>
         <button class="btn secondary copy" data-url="${svc.url}">复制链接</button>
         <button class="btn secondary qr-btn" data-url="${svc.url}">二维码</button>
+        <button class="btn tertiary edit" type="button">编辑</button>
       </div>
       <div class="qr" aria-hidden="true"></div>
     </article>
@@ -262,6 +285,13 @@ function bindCardActions() {
       state.tag = tagEl.dataset.tag;
       elements.tagFilter.value = state.tag;
       render();
+    });
+  });
+
+  document.querySelectorAll(".edit").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.closest(".card").dataset.id;
+      startEdit(id);
     });
   });
 }
@@ -368,6 +398,7 @@ function handleImport(event) {
       }
       services = parsed.services;
       servers = parsed.servers;
+      resetEditing();
       persist();
       renderFilters();
       render();
@@ -379,6 +410,36 @@ function handleImport(event) {
   };
   reader.readAsText(file);
   event.target.value = "";
+}
+
+function startEdit(id) {
+  if (!unlocked) return showToast("请先解锁编辑", true);
+  const svc = services.find((s) => s.id === id);
+  if (!svc) return;
+  editingId = id;
+  elements.formTitle.textContent = "编辑服务";
+  elements.formSubtitle.textContent = `正在编辑：${svc.name}`;
+  elements.submitBtn.textContent = "保存修改";
+  elements.cancelEdit.hidden = false;
+
+  elements.form.name.value = svc.name || "";
+  elements.form.description.value = svc.description || "";
+  elements.form.purpose.value = svc.purpose || "";
+  elements.form.server.value = svc.server || "";
+  elements.form.url.value = svc.url || "";
+  elements.form.port.value = svc.port ?? "";
+  elements.form.auth.value = svc.auth || "";
+  elements.form.tags.value = (svc.tags || []).join(", ");
+  elements.addFormSection.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function resetEditing() {
+  editingId = null;
+  elements.form.reset();
+  elements.formTitle.textContent = "新增服务";
+  elements.formSubtitle.textContent = "解锁后可新增或编辑，保存后本地自动记住";
+  elements.submitBtn.textContent = "添加";
+  elements.cancelEdit.hidden = true;
 }
 
 function showToast(message, isError = false) {
