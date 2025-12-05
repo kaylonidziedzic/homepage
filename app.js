@@ -1,19 +1,20 @@
-/* 保持数据键值不变，方便兼容旧数据 */
+/* 保持原有数据键名以兼容旧数据 */
 const STORAGE_KEYS = { favorites: "nav-favorites", data: "nav-data", password: "nav-password" };
 let services = []; let servers = []; let unlocked = false; let editingId = null;
 const state = { search: "", tag: "", favoritesOnly: false, favorites: new Set() };
 
-// DOM 引用
 const el = {
   clock: document.getElementById("clock"),
   date: document.getElementById("date"),
-  cards: document.getElementById("cards"),
+  mainContent: document.getElementById("mainContent"), // 渲染容器
   search: document.getElementById("searchInput"),
   tagChips: document.getElementById("tagChips"),
   
   modal: document.getElementById("modalOverlay"),
   form: document.getElementById("serviceForm"),
+  btnDelete: document.getElementById("btnDelete"),
   
+  // Buttons
   btnUnlock: document.getElementById("btnUnlock"),
   btnAdd: document.getElementById("btnAdd"),
   btnExport: document.getElementById("btnExport"),
@@ -23,146 +24,215 @@ const el = {
 document.addEventListener("DOMContentLoaded", () => {
   const saved = loadData();
   services = saved?.services || window.defaultServices || [];
-  servers = saved?.servers || [];
   
   startClock();
   render();
   bindEvents();
 });
 
-// 时钟逻辑
 function startClock() {
   const update = () => {
     const now = new Date();
-    el.clock.textContent = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-    el.date.textContent = now.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'long' });
+    el.clock.textContent = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+    const opts = { year:'numeric', month:'long', day:'numeric', weekday:'long' };
+    el.date.textContent = now.toLocaleDateString('zh-CN', opts);
   };
   setInterval(update, 1000); update();
 }
 
-// 核心渲染
+// 核心渲染函数
 function render() {
-  // 1. 渲染标签
-  const tags = new Set(); services.forEach(s => s.tags?.forEach(t => tags.add(t)));
-  const chipsHTML = [`<div class="chip ${state.tag===''?'active':''}" onclick="filterTag('')">全部</div>`]
-    .concat([...tags].map(t => `<div class="chip ${state.tag===t?'active':''}" onclick="filterTag('${t}')">${t}</div>`));
+  // 1. 生成顶部标签过滤器
+  const allTags = new Set();
+  services.forEach(s => s.tags?.forEach(t => allTags.add(t)));
+  const chipsHTML = [`<div class="chip ${state.tag===''?'active':''}" onclick="setTag('')">全部</div>`]
+    .concat([...allTags].map(t => `<div class="chip ${state.tag===t?'active':''}" onclick="setTag('${t}')">${t}</div>`));
   el.tagChips.innerHTML = chipsHTML.join("");
 
-  // 2. 过滤数据
-  const filtered = services.filter(s => {
-    const matchText = (s.name + s.url + s.tags?.join("")).toLowerCase().includes(state.search);
-    const matchTag = !state.tag || s.tags?.includes(state.tag);
-    return matchText && matchTag;
-  });
+  // 2. 准备数据
+  let contentHTML = "";
+  
+  // 逻辑：如果有搜索词，或者选了特定标签 -> 显示平铺网格
+  // 如果是“全部”视图 -> 显示分组视图 (OneNav 风格)
+  const isDefaultView = !state.search && !state.tag;
 
-  // 3. 渲染卡片
-  el.cards.innerHTML = filtered.map(svc => {
-    // 允许编辑按钮出现
-    const editBtn = unlocked 
-      ? `<button class="edit-btn" onclick="event.stopPropagation(); openEdit('${svc.id}')">✎</button>` 
-      : '';
-      
-    return `
-      <div class="card" onclick="window.open('${svc.url}', '_blank')">
-        <div class="card-head">
-          ${getIcon(svc)}
-          ${editBtn}
-        </div>
-        <div class="card-body">
-          <div class="card-name">${svc.name}</div>
-          <div class="card-meta">${svc.description || extractDomain(svc.url)}</div>
-        </div>
-      </div>
-    `;
-  }).join("") || `<div style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">空空如也</div>`;
+  if (isDefaultView) {
+    // --- 分组视图 ---
+    // 1. 先找未分类的
+    const noTagServices = services.filter(s => !s.tags || s.tags.length === 0);
+    if (noTagServices.length > 0) {
+      contentHTML += renderGroup("未分类", noTagServices);
+    }
+    
+    // 2. 按标签分组
+    allTags.forEach(tag => {
+      // 找到包含这个标签的服务
+      const groupServices = services.filter(s => s.tags?.includes(tag));
+      if (groupServices.length > 0) {
+        contentHTML += renderGroup(tag, groupServices);
+      }
+    });
+    
+    // 注意：一个服务如果有多个标签，会出现在多个组里，这在导航页是常见且方便的
+  } else {
+    // --- 平铺筛选视图 ---
+    const filtered = services.filter(s => {
+      const matchText = (s.name+s.url+s.tags?.join("")).toLowerCase().includes(state.search);
+      const matchTag = !state.tag || s.tags?.includes(state.tag);
+      return matchText && matchTag;
+    });
+    
+    if (filtered.length === 0) {
+      contentHTML = `<div style="text-align:center;color:#999;padding:40px;">未找到匹配的服务</div>`;
+    } else {
+      contentHTML = `<div class="cards-grid">${filtered.map(renderCard).join("")}</div>`;
+    }
+  }
+
+  el.mainContent.innerHTML = contentHTML;
 }
 
-// 图标生成逻辑
-function getIcon(svc) {
-  // 1. Emoji (短字符串)
+// 渲染单个分组
+function renderGroup(title, items) {
+  return `
+    <section>
+      <div class="group-title">${title}</div>
+      <div class="cards-grid">
+        ${items.map(renderCard).join("")}
+      </div>
+    </section>
+  `;
+}
+
+// 渲染单个卡片
+function renderCard(svc) {
+  const iconHtml = getIconHtml(svc);
+  const editBtn = unlocked 
+    ? `<button class="card-edit" onclick="event.stopPropagation(); openEdit('${svc.id}')">✎</button>` : '';
+
+  // 提取域名显示
+  let domain = svc.url;
+  try { domain = new URL(svc.url).hostname; } catch(e){}
+  const desc = svc.description || domain;
+
+  return `
+    <div class="card" onclick="window.open('${svc.url}', '_blank')">
+      ${iconHtml}
+      <div class="card-info">
+        <div class="card-name">${svc.name}</div>
+        <div class="card-desc">${desc}</div>
+      </div>
+      ${editBtn}
+    </div>
+  `;
+}
+
+function getIconHtml(svc) {
+  // 1. Emoji
   if (svc.icon && !svc.icon.startsWith("http") && svc.icon.length < 8) {
-    return `<div class="card-icon-box" style="background:#f2f2f7; font-size:24px;">${svc.icon}</div>`;
+    return `<div class="card-icon-box" style="background:#f0f0f5; font-size:26px;">${svc.icon}</div>`;
   }
-  // 2. 图片 URL
+  // 2. 图片
   if (svc.icon && svc.icon.startsWith("http")) {
     return `<div class="card-icon-box" style="background:transparent;"><img src="${svc.icon}" class="card-icon-img"></div>`;
   }
-  // 3. 默认：首字母 + 鲜艳色块 (Mac 文件夹风格)
-  // 调整了配色，使其在白色背景上更通透
+  // 3. 首字母色块 (更清新的配色)
   const colors = [
-    "linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%)", // Pinky
-    "linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)", // Purple
-    "linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)", // Blue Green
-    "linear-gradient(135deg, #fccb90 0%, #d57eeb 100%)", // Orange
-    "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)", // Light Blue
+    "linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)", // 清新蓝
+    "linear-gradient(120deg, #d4fc79 0%, #96e6a1 100%)", // 草木绿
+    "linear-gradient(120deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%)", // 樱花粉
+    "linear-gradient(120deg, #fccb90 0%, #d57eeb 100%)", // 暖橙紫
+    "linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%)", // 梦幻紫
   ];
-  const charCode = svc.name.charCodeAt(0) || 0;
-  const bg = colors[charCode % colors.length];
+  const idx = (svc.name.charCodeAt(0) || 0) % colors.length;
+  const bg = colors[idx];
   
-  return `<div class="card-icon-box" style="background:${bg}; text-shadow:0 1px 2px rgba(0,0,0,0.1);">${svc.name[0].toUpperCase()}</div>`;
+  return `<div class="card-icon-box" style="background:${bg};">${svc.name[0].toUpperCase()}</div>`;
 }
 
-// 工具函数
-function extractDomain(url) {
-  try { return new URL(url).hostname; } catch { return url; }
-}
-window.filterTag = (t) => { state.tag = t; render(); };
+// --- 交互逻辑 ---
+window.setTag = (t) => { state.tag = t; render(); };
 window.openEdit = (id) => {
-  if(!unlocked) return;
+  if (!unlocked) return;
   editingId = id;
   el.modal.hidden = false; el.modal.removeAttribute('hidden');
-  const s = id ? services.find(x=>x.id===id) : {name:'', url:'', icon:'', description:'', tags:[]};
   
-  const f = el.form;
-  f.name.value = s.name || '';
-  f.url.value = s.url || '';
-  f.icon.value = s.icon || '';
-  f.desc.value = s.description || '';
-  f.tags.value = s.tags?.join(", ") || '';
+  if (id) {
+    const s = services.find(x => x.id === id);
+    el.form.name.value = s.name;
+    el.form.url.value = s.url;
+    el.form.icon.value = s.icon || "";
+    el.form.desc.value = s.description || "";
+    el.form.tags.value = s.tags?.join(", ") || "";
+    el.btnDelete.hidden = false;
+  } else {
+    el.form.reset();
+    el.btnDelete.hidden = true;
+  }
 };
-window.closeModal = () => { el.modal.hidden = true; el.modal.setAttribute('hidden', ''); };
+window.closeModal = () => { el.modal.hidden = true; el.modal.setAttribute('hidden',''); };
 
-// 事件绑定
 function bindEvents() {
   el.search.addEventListener("input", (e) => { state.search = e.target.value.toLowerCase(); render(); });
   
+  // 按钮事件
   el.btnAdd.addEventListener("click", () => {
-    if(!unlocked) return alert("请先点击锁图标解锁");
+    if(!unlocked) return alert("为了防止误操作，请先点击左侧的 🔒 图标解锁。");
     openEdit(null);
   });
   
   el.btnUnlock.addEventListener("click", () => {
-    const pwd = prompt("输入密码解锁编辑:");
-    if(pwd) { unlocked = true; el.btnUnlock.innerText = '🔓'; render(); }
+    const pwd = prompt("请输入编辑密码 (如果是首次设置，请输入新密码):");
+    if(pwd) { unlocked = true; el.btnUnlock.textContent = "🔓"; render(); }
   });
   
   el.btnExport.addEventListener("click", () => {
-    const blob = new Blob([JSON.stringify({services,servers},null,2)], {type:"application/json"});
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "nav.json"; a.click();
+    const blob = new Blob([JSON.stringify({services},null,2)], {type:"application/json"});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "nav_backup.json"; a.click();
   });
   
   el.fileInput.addEventListener("change", (e) => {
     const r = new FileReader();
-    r.onload = () => { try { services = JSON.parse(r.result).services; render(); } catch{} };
+    r.onload = () => { try { services = JSON.parse(r.result).services; render(); alert("导入成功！"); } catch(err){ alert("文件格式不对"); } };
     r.readAsText(e.target.files[0]);
   });
   
+  // 表单保存
   el.form.addEventListener("submit", (e) => {
     e.preventDefault();
     const f = new FormData(el.form);
     const item = {
       id: editingId || `svc-${Date.now()}`,
-      name: f.get("name"), url: f.get("url"), icon: f.get("icon"),
-      description: f.get("desc"), tags: f.get("tags").split(/[,，]/).map(t=>t.trim()).filter(Boolean)
+      name: f.get("name"),
+      url: f.get("url"),
+      icon: f.get("icon"),
+      description: f.get("desc"),
+      tags: f.get("tags").split(/[,，]/).map(t=>t.trim()).filter(Boolean)
     };
-    if(editingId) services = services.map(s=>s.id===editingId?{...s,...item}:s);
-    else services.push(item);
     
-    localStorage.setItem(STORAGE_KEYS.data, JSON.stringify({services}));
-    render(); closeModal();
+    if(editingId) {
+      services = services.map(s => s.id === editingId ? item : s);
+    } else {
+      services.push(item);
+    }
+    saveAndRefresh();
+    closeModal();
   });
   
-  el.modal.addEventListener("click", (e) => { if(e.target === el.modal) closeModal(); });
+  // 删除
+  el.btnDelete.addEventListener("click", () => {
+    if(confirm("确定删除这个服务吗？")) {
+      services = services.filter(s => s.id !== editingId);
+      saveAndRefresh();
+      closeModal();
+    }
+  });
+
+  el.modal.addEventListener("click", (e) => { if(e.target===el.modal) closeModal(); });
 }
 
+function saveAndRefresh() {
+  localStorage.setItem(STORAGE_KEYS.data, JSON.stringify({services}));
+  render();
+}
 function loadData() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.data)); } catch { return null; } }
