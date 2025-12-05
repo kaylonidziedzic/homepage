@@ -1,14 +1,25 @@
-FROM nginx:1.27-alpine
+# 使用 Node.js 环境
+FROM node:18-alpine
 
-# 拷贝静态资源
-COPY index.html /usr/share/nginx/html/index.html
-COPY styles.css /usr/share/nginx/html/styles.css
-COPY app.js /usr/share/nginx/html/app.js
-COPY data.js /usr/share/nginx/html/data.js
-COPY README.md /usr/share/nginx/html/README.md
+# 设置工作目录
+WORKDIR /app
 
-# 使用精简的 nginx 配置
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# 1. 安装依赖 (利用缓存)
+COPY package.json ./
+RUN npm install --production
 
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# 2. 拷贝后端代码
+COPY server.js ./
+
+# 3. 拷贝前端文件到 public 目录
+COPY public ./public
+
+# 4. 创建数据目录
+RUN mkdir data
+VOLUME /app/data
+
+# 暴露端口
+EXPOSE 3000
+
+# 启动
+CMD ["npm", "start"]
