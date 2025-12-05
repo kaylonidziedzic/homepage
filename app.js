@@ -36,6 +36,10 @@ const elements = {
   formTitle: document.getElementById("formTitle"),
   formSubtitle: document.getElementById("formSubtitle"),
   toast: document.getElementById("toast"),
+  statServices: document.getElementById("statServices"),
+  statServers: document.getElementById("statServers"),
+  statFavorites: document.getElementById("statFavorites"),
+  statFilters: document.getElementById("statFilters"),
 };
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -186,6 +190,7 @@ function render() {
     .join("") || `<div class="empty">没有匹配的服务</div>`;
 
   bindCardActions();
+  updateStats(filtered.length);
 }
 
 function renderGroup(purpose, items) {
@@ -447,6 +452,27 @@ function showToast(message, isError = false) {
   elements.toast.style.background = isError ? "#b42318" : "#101828";
   elements.toast.classList.add("show");
   setTimeout(() => elements.toast.classList.remove("show"), 2000);
+}
+
+function updateStats(filteredCount) {
+  const totalServices = services.length;
+  const totalServers = new Set(servers.map((s) => s.name)).size;
+  const favoriteCount = state.favorites.size;
+  elements.statServices.textContent = totalServices;
+  elements.statServers.textContent = totalServers;
+  elements.statFavorites.textContent = favoriteCount;
+
+  const activeFilters = [];
+  if (state.search) activeFilters.push(`搜索: ${state.search}`);
+  if (state.tag) activeFilters.push(`标签: ${state.tag}`);
+  if (state.server) activeFilters.push(`服务器: ${state.server}`);
+  if (state.favoritesOnly) activeFilters.push("仅收藏");
+
+  if (activeFilters.length === 0) {
+    elements.statFilters.textContent = `全部显示 · ${filteredCount} 条`;
+  } else {
+    elements.statFilters.textContent = `${filteredCount} 条 · ${activeFilters.join(" · ")}`;
+  }
 }
 
 async function sha256(message) {

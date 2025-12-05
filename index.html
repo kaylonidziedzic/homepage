@@ -10,18 +10,37 @@
   <div class="bg-glow glow-1"></div>
   <div class="bg-glow glow-2"></div>
   <div class="page">
-    <header class="topbar">
-      <div class="branding">
+    <header class="hero">
+      <div class="hero-left">
+        <p class="eyebrow">仪表首页 / Homeboard</p>
         <div class="title">服务导航主页</div>
-        <div class="subtitle">集中浏览服务器与服务，快速打开、复制或分享</div>
+        <div class="subtitle">集中浏览服务器与服务，快速打开、复制或分享，既能在桌面宽屏美观展示，也能在 iOS/Android 上顺滑使用。</div>
+        <div class="hero-actions">
+          <button id="unlockButton" class="btn primary">🔒 解锁编辑</button>
+          <button id="exportButton" class="btn ghost" disabled>导出 JSON</button>
+          <label class="btn ghost file-label" for="importInput" aria-disabled="true">
+            导入 JSON
+            <input type="file" id="importInput" accept="application/json" disabled />
+          </label>
+        </div>
+        <div class="hero-note">支持收藏、标签搜索、快速复制/二维码分享，按需解锁后可导入/导出或编辑已有服务。</div>
       </div>
-      <div class="top-actions">
-        <button id="unlockButton" class="btn secondary">🔒 解锁编辑</button>
-        <button id="exportButton" class="btn secondary" disabled>导出 JSON</button>
-        <label class="btn secondary file-label" for="importInput" aria-disabled="true">
-          导入 JSON
-          <input type="file" id="importInput" accept="application/json" disabled />
-        </label>
+      <div class="hero-right">
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="statServices">0</div>
+            <div class="stat-label">总服务数</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statServers">0</div>
+            <div class="stat-label">服务器</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statFavorites">0</div>
+            <div class="stat-label">已收藏</div>
+          </div>
+        </div>
+        <div class="stat-hint" id="statFilters">全部显示中</div>
       </div>
     </header>
 
