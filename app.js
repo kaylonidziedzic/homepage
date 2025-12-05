@@ -16,48 +16,72 @@ const state = {
   favorites: loadFavorites(),
 };
 
+// 元素映射 (ID 保持不变以便兼容)
 const elements = {
   cards: document.getElementById("cards"),
   search: document.getElementById("searchInput"),
   clearSearch: document.getElementById("clearSearch"),
-  tagFilter: document.getElementById("tagFilter"),
-  favoriteFilter: document.getElementById("favoriteFilter"),
+  tagFilter: document.getElementById("tagFilter"), // 隐藏的 select，用于数据
   tagChips: document.getElementById("tagChips"),
+  favoriteFilter: document.getElementById("favoriteFilter"),
+  
   unlockButton: document.getElementById("unlockButton"),
   exportButton: document.getElementById("exportButton"),
   importInput: document.getElementById("importInput"),
+  
   addFormSection: document.getElementById("addForm"),
   form: document.getElementById("serviceForm"),
   resetForm: document.getElementById("resetForm"),
   submitBtn: document.getElementById("submitBtn"),
   cancelEdit: document.getElementById("cancelEdit"),
+  
   formTitle: document.getElementById("formTitle"),
   formSubtitle: document.getElementById("formSubtitle"),
   toast: document.getElementById("toast"),
   statFilters: document.getElementById("statFilters"),
+  
+  clock: document.getElementById("clock"),
+  date: document.getElementById("date"),
 };
 
 document.addEventListener("DOMContentLoaded", () => {
   const saved = loadData();
   services = saved?.services?.length ? saved.services : window.defaultServices;
   servers = saved?.servers?.length ? saved.servers : window.defaultServers;
+  
+  startClock();
   renderFilters();
   render();
   bindEvents();
 });
 
+// 新增：时钟逻辑
+function startClock() {
+  const update = () => {
+    const now = new Date();
+    elements.clock.textContent = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    elements.date.textContent = now.toLocaleDateString('zh-CN', options);
+  };
+  update();
+  setInterval(update, 1000);
+}
+
 function bindEvents() {
   elements.search.addEventListener("input", (e) => {
     state.search = e.target.value.trim().toLowerCase();
+    elements.clearSearch.hidden = !state.search;
     render();
   });
 
   elements.clearSearch.addEventListener("click", () => {
     elements.search.value = "";
     state.search = "";
+    elements.clearSearch.hidden = true;
     render();
   });
 
+  // 这里的 tagFilter 是为了兼容旧代码逻辑，实际上我们主要用 Chips
   elements.tagFilter.addEventListener("change", (e) => {
     state.tag = e.target.value;
     render();
@@ -71,8 +95,13 @@ function bindEvents() {
   elements.unlockButton.addEventListener("click", handleUnlock);
   elements.exportButton.addEventListener("click", handleExport);
   elements.importInput.addEventListener("change", handleImport);
+  
+  // 模态框逻辑
   elements.resetForm.addEventListener("click", resetEditing);
-  elements.cancelEdit.addEventListener("click", resetEditing);
+  elements.cancelEdit.addEventListener("click", () => {
+    resetEditing();
+    elements.addFormSection.hidden = true; // 关闭模态框
+  });
 
   elements.form.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -96,20 +125,11 @@ function bindEvents() {
 
     if (editingId) {
       services = services.map((svc) =>
-        svc.id === editingId
-          ? {
-              ...svc,
-              ...payload,
-            }
-          : svc
+        svc.id === editingId ? { ...svc, ...payload } : svc
       );
       showToast("已保存修改");
     } else {
-      const newService = {
-        id: `svc-${Date.now()}`,
-        ...payload,
-      };
-      services = [newService, ...services];
+      services = [{ id: `svc-${Date.now()}`, ...payload }, ...services];
       showToast("已新增服务");
     }
 
@@ -119,7 +139,10 @@ function bindEvents() {
     persist();
     renderFilters();
     render();
+    
+    // 提交后重置并关闭模态框
     resetEditing();
+    elements.addFormSection.hidden = true; 
   });
 }
 
@@ -127,25 +150,24 @@ function renderFilters() {
   const tags = new Set();
   services.forEach((svc) => svc.tags?.forEach((t) => tags.add(t)));
   const tagOptions = ["", ...tags];
-  elements.tagFilter.innerHTML = tagOptions
-    .map((t) => `<option value="${t}">${t || "所有标签"}</option>`)
-    .join("");
-  elements.tagFilter.value = state.tag;
-
+  // 保持 select 更新以免逻辑断裂
+  elements.tagFilter.innerHTML = tagOptions.map(t => `<option value="${t}">${t}</option>`).join("");
   renderChips(tagOptions.filter(Boolean));
 }
 
 function renderChips(tagList) {
-  elements.tagChips.innerHTML = tagList
-    .map(
-      (tag) =>
-        `<button class="chip ${state.tag === tag ? "active" : ""}" data-tag="${tag}">${tag}</button>`
-    )
-    .join("");
+  // 添加“全部”选项
+  const allBtn = `<button class="chip ${state.tag === "" ? "active" : ""}" data-tag="">全部</button>`;
+  const others = tagList.map(
+      (tag) => `<button class="chip ${state.tag === tag ? "active" : ""}" data-tag="${tag}">${tag}</button>`
+    ).join("");
+    
+  elements.tagChips.innerHTML = allBtn + others;
+  
   elements.tagChips.querySelectorAll(".chip").forEach((chip) => {
     chip.addEventListener("click", () => {
-      state.tag = chip.dataset.tag === state.tag ? "" : chip.dataset.tag;
-      elements.tagFilter.value = state.tag;
+      state.tag = chip.dataset.tag;
+      renderFilters(); // 重新渲染为了高亮状态
       render();
     });
   });
@@ -153,12 +175,7 @@ function renderChips(tagList) {
 
 function render() {
   const filtered = services.filter((svc) => {
-    const matchesSearch = [
-      svc.name,
-      svc.description,
-      svc.server,
-      svc.tags?.join(" "),
-    ]
+    const matchesSearch = [svc.name, svc.description, svc.server, svc.tags?.join(" ")]
       .filter(Boolean)
       .some((text) => text.toLowerCase().includes(state.search));
 
@@ -167,97 +184,51 @@ function render() {
     return matchesSearch && matchesTag && matchesFavorite;
   });
 
-  elements.cards.innerHTML =
-    filtered.map((svc) => renderCard(svc)).join("") || `<div class="empty">没有匹配的服务</div>`;
+  elements.cards.innerHTML = filtered.map((svc) => renderCard(svc)).join("");
+  
+  if (filtered.length === 0) {
+    elements.cards.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color:rgba(255,255,255,0.4); padding:40px;">没有找到相关服务</div>`;
+  }
 
   bindCardActions();
-  updateStats();
+  updateStats(filtered.length);
 }
 
+// 修改：新的卡片渲染逻辑 (类似 Duckfolio)
 function renderCard(svc) {
   const favorite = state.favorites.has(svc.id);
-  const tags = (svc.tags || [])
-    .map((t) => `<span class="tag" data-tag="${t}">${t}</span>`)
-    .join("");
+  // 获取 Favicon，使用 Google API
+  const domain = svc.url.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
+  const iconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+
   return `
-    <article class="card" data-id="${svc.id}">
-      <div class="title-row">
-        <div>
-          <div class="title">${svc.name}</div>
-          <div class="desc">${svc.description || ""}</div>
-        </div>
-        <button class="favorite ${favorite ? "active" : ""}" title="收藏">${favorite ? "★" : "☆"}</button>
+    <article class="card" data-id="${svc.id}" onclick="window.open('${svc.url}', '_blank')">
+      <div class="card-actions" onclick="event.stopPropagation()">
+         <button class="mini-btn edit" title="编辑">✎</button>
       </div>
-      <div class="meta">
-        <div><span class="label">用途：</span>${svc.purpose || "-"}</div>
-        <div><span class="label">服务器：</span>${svc.server || "-"}</div>
-        <div><span class="label">地址：</span>${svc.url}</div>
-        <div><span class="label">端口：</span>${svc.port || "-"}</div>
-        <div><span class="label">认证：</span>${svc.auth || "-"}</div>
+      <div class="card-top">
+        <img src="${iconUrl}" class="card-icon" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmZmZmIiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PHBhdGggZD0iTTEyIDhhNCA0IDAgMSAwIDAgOCA0IDQgMCAwIDAgMC04eiIvPjwvc3ZnPg=='" alt="icon" />
+        <button class="fav-btn ${favorite ? "active" : ""}" onclick="event.stopPropagation(); toggleFavorite('${svc.id}')">
+          ${favorite ? "★" : "☆"}
+        </button>
       </div>
-      <div class="tags">${tags}</div>
-      <div class="actions">
-        <a class="btn primary" href="${svc.url}" target="_blank" rel="noopener noreferrer">打开</a>
-        <button class="btn secondary copy" data-url="${svc.url}">复制链接</button>
-        <button class="btn secondary qr-btn" data-url="${svc.url}">二维码</button>
-        <button class="btn tertiary edit" type="button">编辑</button>
+      <div class="card-info">
+        <div class="card-title" title="${svc.name}">${svc.name}</div>
+        <div class="card-desc">${svc.description || svc.server || "无描述"}</div>
       </div>
-      <div class="qr" aria-hidden="true"></div>
     </article>
   `;
 }
 
+// 必须暴露给全局因为 onclick 用了字符串调用
+window.toggleFavorite = function(id) {
+  if (state.favorites.has(id)) state.favorites.delete(id);
+  else state.favorites.add(id);
+  localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(Array.from(state.favorites)));
+  render();
+};
+
 function bindCardActions() {
-  document.querySelectorAll(".favorite").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const id = btn.closest(".card").dataset.id;
-      toggleFavorite(id);
-      render();
-    });
-  });
-
-  document.querySelectorAll(".copy").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      const url = btn.dataset.url;
-      try {
-        await navigator.clipboard.writeText(url);
-        showToast("已复制链接");
-      } catch {
-        showToast("复制失败，请检查权限", true);
-      }
-    });
-  });
-
-  document.querySelectorAll(".qr-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const card = btn.closest(".card");
-      const box = card.querySelector(".qr");
-      if (box.classList.contains("visible")) {
-        box.classList.remove("visible");
-        box.innerHTML = "";
-        return;
-      }
-      document.querySelectorAll(".qr.visible").forEach((el) => {
-        el.classList.remove("visible");
-        el.innerHTML = "";
-      });
-      const img = document.createElement("img");
-      const encoded = encodeURIComponent(btn.dataset.url);
-      img.src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encoded}`;
-      img.alt = "QR";
-      box.appendChild(img);
-      box.classList.add("visible");
-    });
-  });
-
-  document.querySelectorAll(".tag").forEach((tagEl) => {
-    tagEl.addEventListener("click", () => {
-      state.tag = tagEl.dataset.tag;
-      elements.tagFilter.value = state.tag;
-      render();
-    });
-  });
-
   document.querySelectorAll(".edit").forEach((btn) => {
     btn.addEventListener("click", () => {
       const id = btn.closest(".card").dataset.id;
@@ -266,20 +237,11 @@ function bindCardActions() {
   });
 }
 
-function toggleFavorite(id) {
-  if (state.favorites.has(id)) state.favorites.delete(id);
-  else state.favorites.add(id);
-  localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(Array.from(state.favorites)));
-}
-
 function loadFavorites() {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.favorites);
     return new Set(raw ? JSON.parse(raw) : []);
-  } catch (e) {
-    console.error(e);
-    return new Set();
-  }
+  } catch (e) { return new Set(); }
 }
 
 function persist() {
@@ -291,10 +253,7 @@ function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.data);
     return raw ? JSON.parse(raw) : null;
-  } catch (e) {
-    console.error(e);
-    return null;
-  }
+  } catch (e) { return null; }
 }
 
 async function handleUnlock() {
@@ -306,7 +265,7 @@ async function handleUnlock() {
     localStorage.setItem(STORAGE_KEYS.password, hash);
     unlocked = true;
     afterUnlock();
-    showToast("已设置密码并解锁");
+    showToast("已解锁");
     return;
   }
   const pwd = prompt("请输入编辑密码");
@@ -315,18 +274,19 @@ async function handleUnlock() {
   if (hash === existing) {
     unlocked = true;
     afterUnlock();
-    showToast("已解锁编辑");
+    showToast("已解锁");
   } else {
     showToast("密码错误", true);
   }
 }
 
 function afterUnlock() {
-  elements.unlockButton.textContent = "✅ 已解锁";
+  elements.unlockButton.textContent = "🔓";
   elements.exportButton.disabled = false;
   elements.importInput.disabled = false;
-  elements.importInput.parentElement.setAttribute("aria-disabled", "false");
-  elements.addFormSection.hidden = false;
+  
+  // 解锁后默认不弹出表单，而是允许点击卡片上的编辑按钮
+  // 也可以点击底部“+”号（如果以后加的话），目前逻辑是允许操作了
 }
 
 function handleExport() {
@@ -353,19 +313,15 @@ function handleImport(event) {
   reader.onload = () => {
     try {
       const parsed = JSON.parse(reader.result);
-      if (!Array.isArray(parsed.services) || !Array.isArray(parsed.servers)) {
-        throw new Error("缺少 services 或 servers 数组");
-      }
+      if (!Array.isArray(parsed.services)) throw new Error("格式错误");
       services = parsed.services;
-      servers = parsed.servers;
-      resetEditing();
+      servers = parsed.servers || [];
       persist();
       renderFilters();
       render();
       showToast("导入成功");
     } catch (e) {
-      console.error(e);
-      showToast("导入失败：" + e.message, true);
+      showToast("导入失败", true);
     }
   };
   reader.readAsText(file);
@@ -378,10 +334,10 @@ function startEdit(id) {
   if (!svc) return;
   editingId = id;
   elements.formTitle.textContent = "编辑服务";
-  elements.formSubtitle.textContent = `正在编辑：${svc.name}`;
-  elements.submitBtn.textContent = "保存修改";
-  elements.cancelEdit.hidden = false;
-
+  elements.formSubtitle.textContent = svc.name;
+  elements.submitBtn.textContent = "保存";
+  
+  // 填充表单
   elements.form.name.value = svc.name || "";
   elements.form.description.value = svc.description || "";
   elements.form.purpose.value = svc.purpose || "";
@@ -390,41 +346,32 @@ function startEdit(id) {
   elements.form.port.value = svc.port ?? "";
   elements.form.auth.value = svc.auth || "";
   elements.form.tags.value = (svc.tags || []).join(", ");
-  elements.addFormSection.scrollIntoView({ behavior: "smooth", block: "start" });
+  
+  // 显示模态框
+  elements.addFormSection.hidden = false;
 }
 
 function resetEditing() {
   editingId = null;
   elements.form.reset();
   elements.formTitle.textContent = "新增服务";
-  elements.formSubtitle.textContent = "解锁后可新增或编辑，保存后本地自动记住";
+  elements.formSubtitle.textContent = "配置新的服务项";
   elements.submitBtn.textContent = "添加";
-  elements.cancelEdit.hidden = true;
 }
 
 function showToast(message, isError = false) {
   elements.toast.textContent = message;
-  elements.toast.style.background = isError ? "#b42318" : "#101828";
+  elements.toast.style.background = isError ? "rgba(220, 38, 38, 0.9)" : "rgba(0, 0, 0, 0.8)";
   elements.toast.classList.add("show");
   setTimeout(() => elements.toast.classList.remove("show"), 2000);
 }
 
-function updateStats() {
-  const activeFilters = [];
-  if (state.search) activeFilters.push(`搜索: ${state.search}`);
-  if (state.tag) activeFilters.push(`标签: ${state.tag}`);
-  if (state.favoritesOnly) activeFilters.push("仅收藏");
-
-  if (activeFilters.length === 0) {
-    elements.statFilters.textContent = "全部服务 · 轻量卡片视图";
-  } else {
-    elements.statFilters.textContent = `筛选中 · ${activeFilters.join(" · ")}`;
-  }
+function updateStats(count) {
+  elements.statFilters.textContent = count > 0 ? `Showing ${count} services` : "";
 }
 
 async function sha256(message) {
   const msgBuffer = new TextEncoder().encode(message);
   const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  return Array.from(new Uint8Array(hashBuffer)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
