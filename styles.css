@@ -1,247 +1,200 @@
 :root {
-  /* 亮色系核心变量 */
-  /* 背景：精选 Unsplash 极简蓝白调壁纸，如果不喜欢可换成纯色渐变 */
-  --bg-image: url('https://images.unsplash.com/photo-1493246507139-91e8fad9978e?q=80&w=2940&auto=format&fit=crop');
+  /* 背景：极简白/灰调风景，如需纯色可改为 background: #f5f5f7; */
+  --bg-image: url('https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?q=80&w=2000&auto=format&fit=crop');
   
-  /* 白玻璃系统 */
-  --glass-bg: rgba(255, 255, 255, 0.65);       /* 卡片背景：半透白 */
-  --glass-border: rgba(255, 255, 255, 0.8);    /* 卡片描边：高亮白 */
-  --glass-hover: rgba(255, 255, 255, 0.85);    /* 悬停加深 */
-  --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.07); /* 极淡的彩色投影，显高级 */
+  /* 玻璃拟态变量 */
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.9);
+  --glass-hover: rgba(255, 255, 255, 0.95);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.03);
+  --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.08);
+
+  /* 色彩系统 */
+  --text-main: #333333;
+  --text-sub: #888888;
+  --accent: #007aff; /* iOS 蓝 */
+  --danger: #ff3b30;
   
-  /* 文字系统 */
-  --text-main: #1d1d1f;  /* 苹果黑 */
-  --text-sub: #86868b;   /* 苹果灰 */
-  
-  /* 强调色：清爽蓝 */
-  --accent: #007aff;
-  
-  --radius-card: 20px;
-  --radius-btn: 12px;
+  --radius: 18px;
 }
 
 * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
 
 body {
   margin: 0;
-  font-family: -apple-system, "PingFang SC", "SF Pro Display", "Microsoft YaHei", sans-serif;
-  background: #f5f5f7 var(--bg-image) no-repeat center center fixed;
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+  background: #f2f2f6 var(--bg-image) no-repeat center center fixed;
   background-size: cover;
   color: var(--text-main);
   min-height: 100vh;
-  /* 增加一个淡白色遮罩，防止背景太花干扰文字 */
-  position: relative;
 }
+
+/* 增加一层白色遮罩，确保文字在任何壁纸上都清晰 */
 body::before {
   content: ""; position: fixed; inset: 0;
-  background: rgba(255, 255, 255, 0.1); /* 微微提亮 */
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(0px); /* 如果壁纸太花，可以改成 blur(10px) */
   pointer-events: none; z-index: -1;
 }
 
-/* 布局容器 */
 .layout {
-  max-width: 1100px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 8vh 24px 100px; /* 顶部留白增加 */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding: 6vh 20px 100px;
+  display: flex; flex-direction: column; align-items: center;
 }
 
-/* --- 1. 顶部时钟 (iOS 锁屏风格) --- */
-.header-section {
-  text-align: center;
-  margin-bottom: 40px;
-  /* 增加文字阴影，防止背景过亮看不清 */
-  text-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
+/* 1. 顶部区域 */
+.header-section { text-align: center; margin-bottom: 30px; }
 .clock {
-  font-size: 5rem;
-  font-weight: 600;
-  color: #1d1d1f; /* 纯黑字 */
-  line-height: 1;
-  letter-spacing: -2px;
+  font-size: 4.5rem; font-weight: 600; color: #222;
+  letter-spacing: -2px; line-height: 1.1;
+  text-shadow: 0 2px 10px rgba(255,255,255,0.8);
 }
-.date {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: var(--text-sub);
-  margin-top: 8px;
-  letter-spacing: 0.5px;
-}
+.date { font-size: 1.1rem; color: #555; margin-top: 5px; font-weight: 500; }
 
-/* --- 2. 搜索栏 (Spotlight 风格) --- */
-.search-wrapper {
-  position: sticky; top: 20px; z-index: 50; /* 搜索框吸顶 */
-  width: 100%; max-width: 580px;
-  margin-bottom: 30px;
-}
+/* 2. 搜索框 */
+.search-wrapper { width: 100%; max-width: 500px; margin-bottom: 30px; position: relative; z-index: 10; }
 .search-glass {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-  border-radius: 16px;
-  height: 56px;
-  display: flex; align-items: center; padding: 0 20px;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: 1px solid #fff;
+  border-radius: 99px; /* 胶囊圆角 */
+  height: 54px;
+  display: flex; align-items: center; padding: 0 24px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
 }
 .search-glass:focus-within {
-  background: rgba(255, 255, 255, 0.95);
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  background: #fff;
 }
-.search-icon { color: var(--text-sub); margin-right: 12px; font-size: 18px; }
+.search-icon { font-size: 18px; margin-right: 12px; opacity: 0.5; }
 .search-input {
-  flex: 1; background: transparent; border: none;
-  font-size: 17px; color: var(--text-main); height: 100%;
+  flex: 1; background: transparent; border: none; font-size: 16px; color: #333; height: 100%;
 }
-.search-input::placeholder { color: #a1a1a6; }
 
-/* 标签栏 */
-.chips-row {
-  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
-  margin-bottom: 40px;
-}
+/* 3. 标签 */
+.chips-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 40px; }
 .chip {
-  background: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(4px);
-  padding: 6px 14px; border-radius: 99px;
-  font-size: 13px; color: var(--text-sub); font-weight: 500;
-  cursor: pointer; transition: 0.2s;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+  background: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.8);
+  padding: 6px 16px; border-radius: 20px; font-size: 14px; color: #555;
+  cursor: pointer; transition: 0.2s; backdrop-filter: blur(4px);
 }
-.chip:hover { background: #fff; transform: translateY(-1px); }
-.chip.active {
-  background: var(--text-main); color: #fff; border-color: var(--text-main);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
+.chip:hover { background: #fff; transform: translateY(-1px); color: #000; }
+.chip.active { background: #333; color: #fff; border-color: #333; }
 
-/* --- 3. 卡片网格 (清透质感) --- */
-.grid-container { width: 100%; }
-.grid-title {
-  font-size: 13px; color: var(--text-sub); font-weight: 600;
-  margin-bottom: 12px; padding-left: 6px; opacity: 0.8;
-}
+/* 4. 内容区域 (分组与网格) */
+.content-area { width: 100%; }
 
+/* 分组标题 */
+.group-title {
+  font-size: 18px; font-weight: 700; color: #333;
+  margin: 30px 0 16px 8px; opacity: 0.9; display: flex; align-items: center; gap: 8px;
+}
+.group-title::before { content:""; width: 4px; height: 16px; background: var(--accent); border-radius: 2px; }
+
+/* 网格布局 */
 .cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* 小巧精致 */
-  gap: 16px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px;
 }
 
+/* 卡片样式 */
 .card {
   background: var(--glass-bg);
-  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
-  border-radius: var(--radius-card);
-  padding: 18px;
-  height: 130px;
-  display: flex; flex-direction: column; justify-content: space-between;
+  border-radius: var(--radius);
+  padding: 16px;
+  height: 100px; /* 更紧凑的高度 */
+  display: flex; align-items: center; gap: 14px;
   cursor: pointer; position: relative;
-  box-shadow: var(--glass-shadow);
-  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: var(--shadow-card);
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 .card:hover {
-  background: var(--glass-hover);
-  transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+  transform: translateY(-4px);
+  background: #fff;
+  box-shadow: var(--shadow-hover);
 }
 
-/* 卡片内容 */
-.card-head { display: flex; justify-content: space-between; align-items: flex-start; }
+/* 卡片内部布局 (左图标，右文字) */
 .card-icon-box {
-  width: 44px; height: 44px; border-radius: 12px;
+  width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  font-size: 20px; font-weight: 700; color: #fff;
-  /* 默认阴影 */
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  font-size: 24px; color: #fff; font-weight: bold;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
 }
-.card-icon-img { width: 100%; height: 100%; border-radius: 12px; object-fit: contain; }
+.card-icon-img { width: 100%; height: 100%; border-radius: 14px; object-fit: contain; }
 
-.edit-btn {
-  opacity: 0; transition: 0.2s;
-  background: rgba(0,0,0,0.05); color: var(--text-main);
-  width: 24px; height: 24px; border-radius: 8px; border: none;
-  cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px;
-}
-.card:hover .edit-btn { opacity: 1; }
-.edit-btn:hover { background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.card-info { flex: 1; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+.card-name { font-size: 15px; font-weight: 600; color: #222; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-desc { font-size: 12px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.card-body { margin-top: auto; }
-.card-name {
-  font-size: 15px; font-weight: 600; color: var(--text-main);
-  margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+/* 编辑按钮 (仅鼠标悬停显示) */
+.card-edit {
+  position: absolute; top: 8px; right: 8px;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: rgba(0,0,0,0.05); color: #555;
+  border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: 0.2s; font-size: 12px;
 }
-.card-meta {
-  font-size: 12px; color: var(--text-sub);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
+.card:hover .card-edit { opacity: 1; }
+.card-edit:hover { background: var(--accent); color: #fff; }
 
-/* --- 底部悬浮岛 (Dock) --- */
+/* 5. 底部 Dock */
 .dock {
-  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  padding: 8px 12px; border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.12);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  display: flex; gap: 8px; z-index: 100;
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+  background: rgba(255,255,255,0.9); backdrop-filter: blur(20px);
+  padding: 8px 16px; border-radius: 99px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  display: flex; gap: 12px; border: 1px solid rgba(255,255,255,1);
+  z-index: 100;
 }
 .dock-btn {
-  width: 40px; height: 40px; border-radius: 12px;
-  border: none; background: transparent;
-  font-size: 18px; color: #555; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: 0.2s; position: relative;
+  background: transparent; border: none; font-size: 18px; color: #666;
+  width: 40px; height: 40px; border-radius: 50%;
+  cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;
 }
-.dock-btn:hover:not(:disabled) {
-  background: rgba(0,0,0,0.05); transform: translateY(-2px); color: #000;
-}
-.dock-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-.divider { width: 1px; background: rgba(0,0,0,0.1); margin: 6px 2px; }
+.dock-btn:hover { background: #f0f0f5; color: #000; transform: scale(1.1); }
+.divider { width: 1px; background: #ddd; margin: 0 4px; }
 
-/* --- 模态框 (白白净净) --- */
+/* 6. 模态框 */
 .modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.3);
-  backdrop-filter: blur(4px); z-index: 200;
-  display: none; align-items: center; justify-content: center;
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px);
+  z-index: 200; display: none; align-items: center; justify-content: center;
   opacity: 0; animation: fadeIn 0.2s forwards;
 }
 .modal-overlay:not([hidden]) { display: flex; }
 
 .modal-box {
-  background: #fff; width: 100%; max-width: 400px;
-  border-radius: 24px; padding: 28px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-  transform: scale(0.95); animation: popUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  background: #fff; width: 90%; max-width: 420px;
+  border-radius: 24px; padding: 24px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+  transform: scale(0.95); animation: popUp 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
 }
-.modal-title { margin: 0 0 20px; font-size: 18px; font-weight: 700; color: #1d1d1f; }
+.modal-title { margin: 0 0 20px; font-size: 18px; color: #333; }
 
 .input-row { margin-bottom: 16px; }
-.input-label { display: block; font-size: 12px; color: var(--text-sub); margin-bottom: 6px; font-weight: 500; }
+.input-label { display: block; font-size: 13px; color: #666; margin-bottom: 6px; }
 .input-field {
-  width: 100%; background: #f5f5f7; border: 1px solid transparent;
-  border-radius: 10px; padding: 12px; font-size: 14px; color: #1d1d1f;
-  transition: 0.2s;
+  width: 100%; padding: 12px; background: #f7f7f9; border: 1px solid transparent;
+  border-radius: 10px; font-size: 14px; transition: 0.2s;
 }
-.input-field:focus { background: #fff; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1); }
+.input-field:focus { background: #fff; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,122,255,0.1); }
 
-.modal-btns { display: flex; gap: 10px; margin-top: 24px; }
-.btn-submit {
-  flex: 1; background: var(--text-main); color: #fff; border: none;
-  padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer;
-}
-.btn-submit:hover { opacity: 0.9; }
-.btn-close { background: transparent; border: none; color: var(--text-sub); padding: 12px; cursor: pointer; }
+.modal-btns { display: flex; gap: 10px; margin-top: 24px; align-items: center; }
+.btn-submit { background: var(--accent); color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; }
+.btn-close { background: #f0f0f5; color: #666; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; }
+.btn-delete { background: transparent; color: var(--danger); border: 1px solid rgba(255,59,48,0.3); padding: 8px 16px; border-radius: 10px; cursor: pointer; font-size: 13px; }
 
 @keyframes fadeIn { to { opacity: 1; } }
 @keyframes popUp { to { transform: scale(1); } }
 
-/* 移动端适配 */
 @media (max-width: 600px) {
-  .clock { font-size: 3.5rem; }
   .cards-grid { grid-template-columns: repeat(2, 1fr); }
-  .layout { padding-top: 5vh; }
+  .card { flex-direction: column; text-align: center; height: 130px; padding: 16px 8px; }
+  .card-info { margin-top: 8px; }
+  .card-icon-box { margin: 0 auto; }
 }
