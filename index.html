@@ -3,99 +3,112 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>服务导航主页</title>
+  <title>Service Atlas</title>
   <link rel="stylesheet" href="styles.css" />
-</head>
+  </head>
 <body>
-  <div class="bg-glow glow-1"></div>
-  <div class="bg-glow glow-2"></div>
-  <div class="page">
-    <div class="topbar">
-      <div class="brand">
-        <span class="brand-mark"></span>
-        <div>
-          <div class="brand-title">Service Atlas</div>
-          <div class="brand-sub">跨平台自用导航</div>
-        </div>
-      </div>
-      <div class="top-actions">
-        <a class="link" href="#addForm">快速跳转表单</a>
-        <span class="pill">PC / iPad / Mobile 全端适配</span>
-      </div>
-    </div>
+  <div class="wallpaper"></div>
+  <div class="overlay"></div>
 
-    <header class="hero">
-      <div class="hero-left">
-        <p class="eyebrow">仪表首页 / Homeboard</p>
-        <div class="title">服务导航主页</div>
-        <div class="subtitle">集中浏览服务，轻量卡片式呈现，桌面与 iOS/Android 上都能快速触达。</div>
-        <div class="hero-actions">
-          <button id="unlockButton" class="btn primary">🔒 解锁编辑</button>
-          <button id="exportButton" class="btn ghost" disabled>导出 JSON</button>
-          <label class="btn ghost file-label" for="importInput" aria-disabled="true">
-            导入 JSON
-            <input type="file" id="importInput" accept="application/json" disabled />
-          </label>
-        </div>
-        <div class="hero-note">Duckfolio 式简洁布局，保留收藏、复制、二维码与编辑，减少冗余信息。</div>
-      </div>
+  <div class="page-container">
+    
+    <header class="header-section">
+      <div id="clock" class="clock">00:00</div>
+      <div id="date" class="date">Loading...</div>
     </header>
 
-    <section class="controls">
-      <div class="control-group search-group">
-        <span class="input-icon">🔎</span>
-        <input id="searchInput" type="search" placeholder="搜索名称、描述、标签、服务器..." />
-        <button id="clearSearch" class="icon-btn" title="清除搜索">✕</button>
+    <section class="search-section">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input id="searchInput" type="text" placeholder="Search..." autocomplete="off" />
+        <button id="clearSearch" class="clear-btn" hidden>×</button>
       </div>
-      <div class="control-group filters">
-        <select id="tagFilter">
-          <option value="">所有标签</option>
-        </select>
-        <label class="toggle">
-          <input id="favoriteFilter" type="checkbox" />
-          <span>仅查看收藏</span>
+      
+      <div class="filter-bar">
+        <div id="tagChips" class="chips-scroll"></div>
+        <div class="toggles">
+          <label class="fav-toggle" title="仅看收藏">
+            <input id="favoriteFilter" type="checkbox" />
+            <span class="slider">★</span>
+          </label>
+        </div>
+        <select id="tagFilter" style="display:none"></select>
+      </div>
+    </section>
+
+    <main class="grid-container">
+      <div class="section-title" id="statFilters"></div>
+      <div id="cards" class="cards-grid"></div>
+    </main>
+
+    <section id="addForm" class="modal-form" hidden>
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <h3 id="formTitle">新增服务</h3>
+            <p id="formSubtitle" class="sub-text">配置服务信息</p>
+          </div>
+          <button type="button" id="cancelEdit" class="close-btn">✕</button>
+        </div>
+        <form id="serviceForm" class="modern-form">
+          <div class="form-group">
+            <input name="name" required placeholder=" " />
+            <label>名称</label>
+          </div>
+          <div class="form-group">
+            <input name="url" required placeholder=" " />
+            <label>URL 地址</label>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <input name="server" required placeholder=" " />
+              <label>服务器</label>
+            </div>
+            <div class="form-group">
+              <input name="port" type="number" placeholder=" " />
+              <label>端口</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <input name="description" placeholder=" " />
+            <label>描述</label>
+          </div>
+          <div class="form-group">
+            <input name="purpose" required placeholder=" " />
+            <label>用途分组</label>
+          </div>
+          <div class="form-group">
+            <input name="auth" placeholder=" " />
+            <label>认证信息</label>
+          </div>
+          <div class="form-group">
+            <input name="tags" placeholder=" " />
+            <label>标签 (逗号分隔)</label>
+          </div>
+          <div class="form-actions">
+            <button type="button" id="resetForm" class="btn-text">重置</button>
+            <button id="submitBtn" type="submit" class="btn-primary">保存</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <footer class="dock">
+      <div class="dock-left">
+        <span class="brand">Service Atlas</span>
+      </div>
+      <div class="dock-right">
+        <button id="unlockButton" class="dock-btn">🔒</button>
+        <button id="exportButton" class="dock-btn" disabled title="导出配置">📥</button>
+        <label class="dock-btn file-trigger" title="导入配置">
+          📤
+          <input type="file" id="importInput" accept="application/json" disabled />
         </label>
       </div>
-    </section>
-
-    <section id="tagChips" class="chips" aria-label="快速标签"></section>
-
-    <section class="panel slim">
-      <div class="panel-head">
-        <div>
-          <div class="panel-title">全部服务</div>
-          <div class="panel-subtitle" id="statFilters">轻量卡片视图，支持搜索 / 标签 / 收藏</div>
-        </div>
-      </div>
-      <div id="cards" class="cards flat"></div>
-    </section>
-
-    <section id="addForm" class="panel" hidden>
-      <div class="panel-head">
-        <div>
-          <div class="panel-title" id="formTitle">新增服务</div>
-          <div class="panel-subtitle" id="formSubtitle">解锁后可新增或编辑，保存后本地自动记住</div>
-        </div>
-        <button type="button" id="cancelEdit" class="btn tertiary" hidden>取消编辑</button>
-      </div>
-      <form id="serviceForm" class="form-grid">
-        <label>名称<input name="name" required /></label>
-        <label>描述<input name="description" /></label>
-        <label>用途分组<input name="purpose" placeholder="例如：监控/数据库/应用" required /></label>
-        <label>所属服务器<input name="server" required /></label>
-        <label>访问地址<input name="url" required /></label>
-        <label>端口<input name="port" type="number" min="0" placeholder="可选" /></label>
-        <label>认证方式/账号<input name="auth" placeholder="例如 basic / token / 账号" /></label>
-        <label>标签（逗号分隔）<input name="tags" placeholder="prod, monitoring" /></label>
-        <div class="form-actions">
-          <button id="submitBtn" type="submit" class="btn primary">添加</button>
-          <button type="button" id="resetForm" class="btn secondary">重置</button>
-        </div>
-      </form>
-    </section>
+    </footer>
   </div>
 
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="toast" class="toast"></div>
 
   <script src="data.js"></script>
   <script src="app.js"></script>
