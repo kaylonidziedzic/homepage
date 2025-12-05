@@ -1,17 +1,18 @@
 :root {
-  /* 背景：极简白/灰调风景，如需纯色可改为 background: #f5f5f7; */
-  --bg-image: url('https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?q=80&w=2000&auto=format&fit=crop');
+  /* 👇 在这里修改背景图片 URL */
+  --bg-image: url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=2874&auto=format&fit=crop');
   
   /* 玻璃拟态变量 */
-  --glass-bg: rgba(255, 255, 255, 0.75);
-  --glass-border: rgba(255, 255, 255, 0.9);
+  --glass-bg: rgba(255, 255, 255, 0.85); /* 稍微不透明一点，防止背景太花 */
+  --glass-border: rgba(255, 255, 255, 0.6);
   --glass-hover: rgba(255, 255, 255, 0.95);
+  
   --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.03);
   --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.08);
 
   /* 色彩系统 */
   --text-main: #333333;
-  --text-sub: #888888;
+  --text-sub: #666666;
   --accent: #007aff; /* iOS 蓝 */
   --danger: #ff3b30;
   
@@ -29,18 +30,19 @@ body {
   min-height: 100vh;
 }
 
-/* 增加一层白色遮罩，确保文字在任何壁纸上都清晰 */
+/* 白色遮罩，让文字更清晰 */
 body::before {
   content: ""; position: fixed; inset: 0;
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(0px); /* 如果壁纸太花，可以改成 blur(10px) */
+  background: rgba(255, 255, 255, 0.2);
   pointer-events: none; z-index: -1;
 }
 
+/* --- 布局容器 (已应用 PC 宽屏优化) --- */
 .layout {
-  max-width: 1000px;
+  width: 92%;
+  max-width: 1600px; /* 大屏显示更宽 */
   margin: 0 auto;
-  padding: 6vh 20px 100px;
+  padding: 60px 0 120px;
   display: flex; flex-direction: column; align-items: center;
 }
 
@@ -59,16 +61,14 @@ body::before {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border: 1px solid #fff;
-  border-radius: 99px; /* 胶囊圆角 */
+  border-radius: 99px;
   height: 54px;
   display: flex; align-items: center; padding: 0 24px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   transition: all 0.3s ease;
 }
 .search-glass:focus-within {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-  background: #fff;
+  transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); background: #fff;
 }
 .search-icon { font-size: 18px; margin-right: 12px; opacity: 0.5; }
 .search-input {
@@ -85,10 +85,8 @@ body::before {
 .chip:hover { background: #fff; transform: translateY(-1px); color: #000; }
 .chip.active { background: #333; color: #fff; border-color: #333; }
 
-/* 4. 内容区域 (分组与网格) */
+/* 4. 内容区域 */
 .content-area { width: 100%; }
-
-/* 分组标题 */
 .group-title {
   font-size: 18px; font-weight: 700; color: #333;
   margin: 30px 0 16px 8px; opacity: 0.9; display: flex; align-items: center; gap: 8px;
@@ -97,7 +95,9 @@ body::before {
 
 /* 网格布局 */
 .cards-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* 稍微加宽卡片 */
+  gap: 20px;
 }
 
 /* 卡片样式 */
@@ -107,19 +107,16 @@ body::before {
   border: 1px solid var(--glass-border);
   border-radius: var(--radius);
   padding: 16px;
-  height: 100px; /* 更紧凑的高度 */
+  height: 110px;
   display: flex; align-items: center; gap: 14px;
   cursor: pointer; position: relative;
   box-shadow: var(--shadow-card);
   transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 .card:hover {
-  transform: translateY(-4px);
-  background: #fff;
-  box-shadow: var(--shadow-hover);
+  transform: translateY(-4px); background: #fff; box-shadow: var(--shadow-hover);
 }
 
-/* 卡片内部布局 (左图标，右文字) */
 .card-icon-box {
   width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
@@ -132,7 +129,6 @@ body::before {
 .card-name { font-size: 15px; font-weight: 600; color: #222; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .card-desc { font-size: 12px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* 编辑按钮 (仅鼠标悬停显示) */
 .card-edit {
   position: absolute; top: 8px; right: 8px;
   width: 24px; height: 24px; border-radius: 50%;
@@ -192,9 +188,37 @@ body::before {
 @keyframes fadeIn { to { opacity: 1; } }
 @keyframes popUp { to { transform: scale(1); } }
 
-@media (max-width: 600px) {
-  .cards-grid { grid-template-columns: repeat(2, 1fr); }
-  .card { flex-direction: column; text-align: center; height: 130px; padding: 16px 8px; }
-  .card-info { margin-top: 8px; }
-  .card-icon-box { margin: 0 auto; }
+/* --- 移动端深度适配 (Mobile Optimization) --- */
+@media (max-width: 768px) {
+  .layout {
+    width: 100%;
+    padding: 40px 16px 100px; /* 减小边距 */
+  }
+  .clock { font-size: 3.2rem; }
+  
+  /* 强制双列显示 */
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 10px;
+  }
+  .card {
+    height: 110px; padding: 12px; flex-direction: column; text-align: center;
+  }
+  .card-info { margin-top: 8px; align-items: center; }
+  
+  /* 手机端强制显示编辑按钮 */
+  .card-edit {
+    opacity: 1 !important;
+    background: rgba(0, 0, 0, 0.03);
+    width: 28px; height: 28px;
+  }
+  
+  /* 抽屉式弹窗 */
+  .modal-box {
+    width: 100%; max-width: none;
+    border-radius: 24px 24px 0 0;
+    position: fixed; bottom: 0; margin: 0;
+    animation: slideUp 0.3s forwards;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 }
