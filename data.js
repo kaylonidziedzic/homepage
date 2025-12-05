@@ -1,0 +1,88 @@
+// 示例数据，后续可通过导入 JSON 或表单自定义。
+window.defaultServers = [
+  {
+    name: "atlas-01",
+    note: "核心生产",
+  },
+  {
+    name: "atlas-02",
+    note: "备用生产",
+  },
+  {
+    name: "hera-dev",
+    note: "开发环境",
+  },
+  {
+    name: "hera-test",
+    note: "测试环境",
+  },
+];
+
+window.defaultServices = [
+  {
+    id: "svc-1",
+    name: "Prometheus",
+    description: "生产监控数据采集",
+    purpose: "监控",
+    server: "atlas-01",
+    url: "https://atlas-01.internal:9090",
+    port: 9090,
+    auth: "basic / ops",
+    tags: ["prod", "monitoring"],
+  },
+  {
+    id: "svc-2",
+    name: "Grafana",
+    description: "指标可视化看板",
+    purpose: "监控",
+    server: "atlas-01",
+    url: "https://grafana.internal",
+    port: 443,
+    auth: "SSO",
+    tags: ["prod", "visualization"],
+  },
+  {
+    id: "svc-3",
+    name: "GitLab",
+    description: "代码托管 / CI",
+    purpose: "研发",
+    server: "hera-dev",
+    url: "https://gitlab.dev.example.com",
+    port: 443,
+    auth: "账号",
+    tags: ["dev", "ci"],
+  },
+  {
+    id: "svc-4",
+    name: "Jenkins",
+    description: "流水线任务",
+    purpose: "研发",
+    server: "hera-test",
+    url: "https://jenkins.test.example.com",
+    port: 443,
+    auth: "账号",
+    tags: ["test", "ci"],
+  },
+  {
+    id: "svc-5",
+    name: "ArgoCD",
+    description: "集群部署控制",
+    purpose: "发布",
+    server: "atlas-02",
+    url: "https://argocd.prod.example.com",
+    port: 443,
+    auth: "SSO",
+    tags: ["prod", "k8s"],
+  },
+  {
+    id: "svc-6",
+    name: "MinIO",
+    description: "对象存储",
+    purpose: "存储",
+    server: "hera-dev",
+    url: "https://minio.dev.example.com",
+    port: 9000,
+    auth: "AK/SK",
+    tags: ["dev", "storage"],
+  },
+];
