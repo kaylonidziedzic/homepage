@@ -3,68 +3,69 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Minimal Nav</title>
+  <title>New Tab</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-
+  
   <div class="layout">
-    <header class="clock-section">
+    <header class="header-section">
       <div id="clock" class="clock">00:00</div>
       <div id="date" class="date">Loading...</div>
     </header>
 
-    <section class="interaction-bar">
-      <div class="search-wrapper">
-        <div class="search-glass">
-          <span class="search-icon">🔍</span>
-          <input id="searchInput" type="text" placeholder="Type to search..." autocomplete="off" />
-        </div>
+    <div class="search-wrapper">
+      <div class="search-glass">
+        <span class="search-icon">🔍</span>
+        <input id="searchInput" class="search-input" placeholder="Search..." autocomplete="off" />
       </div>
-      <div id="tagChips" class="filters-wrapper"></div>
-    </section>
+    </div>
 
-    <main class="grid-section">
+    <div id="tagChips" class="chips-row"></div>
+
+    <main class="grid-container">
+      <div class="grid-title">FAVORITES</div>
       <div id="cards" class="cards-grid"></div>
     </main>
-
-    <footer class="dock-container">
-      <button id="unlockButton" class="dock-btn" title="Unlock">🔒</button>
-      <button id="addBtn" class="dock-btn" title="Add">＋</button>
-      <button id="exportBtn" class="dock-btn" title="Export">↓</button>
-      <label class="dock-btn" title="Import" style="cursor: pointer;">
-        ↑ <input type="file" id="importInput" hidden accept=".json">
-      </label>
-    </footer>
   </div>
 
+  <footer class="dock">
+    <button id="btnUnlock" class="dock-btn" title="Unlock">🔒</button>
+    <div class="divider"></div>
+    <button id="btnAdd" class="dock-btn" title="Add Service">＋</button>
+    <button id="btnExport" class="dock-btn" title="Export">↓</button>
+    <label class="dock-btn" title="Import" style="cursor: pointer;">
+      ↑ <input type="file" id="fileInput" hidden accept=".json">
+    </label>
+  </footer>
+
   <div id="modalOverlay" class="modal-overlay" hidden>
-    <div class="modal-content">
-      <h3 style="margin-top:0; margin-bottom:20px;">Edit Service</h3>
+    <div class="modal-box">
+      <h3 class="modal-title">Edit Service</h3>
       <form id="serviceForm">
-        <div class="form-group">
-          <label>NAME</label>
-          <input name="name" class="form-input" required placeholder="Service Name" />
+        <div class="input-row">
+          <label class="input-label">NAME</label>
+          <input name="name" class="input-field" required placeholder="Service Name" />
         </div>
-        <div class="form-group">
-          <label>URL</label>
-          <input name="url" class="form-input" required placeholder="http://..." />
+        <div class="input-row">
+          <label class="input-label">URL</label>
+          <input name="url" class="input-field" required placeholder="http://..." />
         </div>
-        <div class="form-group">
-          <label>ICON (Optional)</label>
-          <input name="icon" class="form-input" placeholder="Emoji (📊) or Image URL" />
+        <div class="input-row">
+          <label class="input-label">ICON (Emoji or URL)</label>
+          <input name="icon" class="input-field" placeholder="e.g. 📺" />
         </div>
-        <div class="form-group">
-          <label>DESCRIPTION</label>
-          <input name="desc" class="form-input" placeholder="Short description" />
+        <div class="input-row">
+          <label class="input-label">DESCRIPTION</label>
+          <input name="desc" class="input-field" placeholder="Optional" />
         </div>
-        <div class="form-group">
-          <label>TAGS</label>
-          <input name="tags" class="form-input" placeholder="nas, dev, media" />
+        <div class="input-row">
+          <label class="input-label">TAGS</label>
+          <input name="tags" class="input-field" placeholder="nas, dev, tools" />
         </div>
-        <div class="modal-actions">
-          <button type="button" id="cancelBtn" class="btn-cancel">Cancel</button>
-          <button type="submit" class="btn-save">Save Changes</button>
+        <div class="modal-btns">
+          <button type="button" class="btn-close" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn-submit">Save</button>
         </div>
       </form>
     </div>
