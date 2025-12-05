@@ -1,4 +1,3 @@
-/* 保持原有数据键名以兼容旧数据 */
 const STORAGE_KEYS = { favorites: "nav-favorites", data: "nav-data", password: "nav-password" };
 let services = []; let servers = []; let unlocked = false; let editingId = null;
 const state = { search: "", tag: "", favoritesOnly: false, favorites: new Set() };
@@ -6,7 +5,7 @@ const state = { search: "", tag: "", favoritesOnly: false, favorites: new Set() 
 const el = {
   clock: document.getElementById("clock"),
   date: document.getElementById("date"),
-  mainContent: document.getElementById("mainContent"), // 渲染容器
+  mainContent: document.getElementById("mainContent"),
   search: document.getElementById("searchInput"),
   tagChips: document.getElementById("tagChips"),
   
@@ -14,7 +13,6 @@ const el = {
   form: document.getElementById("serviceForm"),
   btnDelete: document.getElementById("btnDelete"),
   
-  // Buttons
   btnUnlock: document.getElementById("btnUnlock"),
   btnAdd: document.getElementById("btnAdd"),
   btnExport: document.getElementById("btnExport"),
@@ -23,6 +21,7 @@ const el = {
 
 document.addEventListener("DOMContentLoaded", () => {
   const saved = loadData();
+  // 兼容 data.js 的初始数据
   services = saved?.services || window.defaultServices || [];
   
   startClock();
@@ -42,40 +41,33 @@ function startClock() {
 
 // 核心渲染函数
 function render() {
-  // 1. 生成顶部标签过滤器
+  // 1. 生成顶部标签
   const allTags = new Set();
   services.forEach(s => s.tags?.forEach(t => allTags.add(t)));
   const chipsHTML = [`<div class="chip ${state.tag===''?'active':''}" onclick="setTag('')">全部</div>`]
     .concat([...allTags].map(t => `<div class="chip ${state.tag===t?'active':''}" onclick="setTag('${t}')">${t}</div>`));
   el.tagChips.innerHTML = chipsHTML.join("");
 
-  // 2. 准备数据
+  // 2. 准备内容
   let contentHTML = "";
-  
-  // 逻辑：如果有搜索词，或者选了特定标签 -> 显示平铺网格
-  // 如果是“全部”视图 -> 显示分组视图 (OneNav 风格)
   const isDefaultView = !state.search && !state.tag;
 
   if (isDefaultView) {
-    // --- 分组视图 ---
-    // 1. 先找未分类的
+    // --- 分组视图 (OneNav 风格) ---
+    // A. 未分类
     const noTagServices = services.filter(s => !s.tags || s.tags.length === 0);
     if (noTagServices.length > 0) {
       contentHTML += renderGroup("未分类", noTagServices);
     }
-    
-    // 2. 按标签分组
+    // B. 按标签分组
     allTags.forEach(tag => {
-      // 找到包含这个标签的服务
       const groupServices = services.filter(s => s.tags?.includes(tag));
       if (groupServices.length > 0) {
         contentHTML += renderGroup(tag, groupServices);
       }
     });
-    
-    // 注意：一个服务如果有多个标签，会出现在多个组里，这在导航页是常见且方便的
   } else {
-    // --- 平铺筛选视图 ---
+    // --- 筛选视图 ---
     const filtered = services.filter(s => {
       const matchText = (s.name+s.url+s.tags?.join("")).toLowerCase().includes(state.search);
       const matchTag = !state.tag || s.tags?.includes(state.tag);
@@ -92,7 +84,6 @@ function render() {
   el.mainContent.innerHTML = contentHTML;
 }
 
-// 渲染单个分组
 function renderGroup(title, items) {
   return `
     <section>
@@ -104,13 +95,11 @@ function renderGroup(title, items) {
   `;
 }
 
-// 渲染单个卡片
 function renderCard(svc) {
   const iconHtml = getIconHtml(svc);
   const editBtn = unlocked 
     ? `<button class="card-edit" onclick="event.stopPropagation(); openEdit('${svc.id}')">✎</button>` : '';
 
-  // 提取域名显示
   let domain = svc.url;
   try { domain = new URL(svc.url).hostname; } catch(e){}
   const desc = svc.description || domain;
@@ -136,13 +125,13 @@ function getIconHtml(svc) {
   if (svc.icon && svc.icon.startsWith("http")) {
     return `<div class="card-icon-box" style="background:transparent;"><img src="${svc.icon}" class="card-icon-img"></div>`;
   }
-  // 3. 首字母色块 (更清新的配色)
+  // 3. 首字母色块
   const colors = [
-    "linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)", // 清新蓝
-    "linear-gradient(120deg, #d4fc79 0%, #96e6a1 100%)", // 草木绿
-    "linear-gradient(120deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%)", // 樱花粉
-    "linear-gradient(120deg, #fccb90 0%, #d57eeb 100%)", // 暖橙紫
-    "linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%)", // 梦幻紫
+    "linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)",
+    "linear-gradient(120deg, #d4fc79 0%, #96e6a1 100%)",
+    "linear-gradient(120deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%)",
+    "linear-gradient(120deg, #fccb90 0%, #d57eeb 100%)",
+    "linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%)",
   ];
   const idx = (svc.name.charCodeAt(0) || 0) % colors.length;
   const bg = colors[idx];
@@ -150,7 +139,7 @@ function getIconHtml(svc) {
   return `<div class="card-icon-box" style="background:${bg};">${svc.name[0].toUpperCase()}</div>`;
 }
 
-// --- 交互逻辑 ---
+// 交互逻辑
 window.setTag = (t) => { state.tag = t; render(); };
 window.openEdit = (id) => {
   if (!unlocked) return;
@@ -175,14 +164,13 @@ window.closeModal = () => { el.modal.hidden = true; el.modal.setAttribute('hidde
 function bindEvents() {
   el.search.addEventListener("input", (e) => { state.search = e.target.value.toLowerCase(); render(); });
   
-  // 按钮事件
   el.btnAdd.addEventListener("click", () => {
-    if(!unlocked) return alert("为了防止误操作，请先点击左侧的 🔒 图标解锁。");
+    if(!unlocked) return alert("请先点击左下角的 🔒 解锁编辑");
     openEdit(null);
   });
   
   el.btnUnlock.addEventListener("click", () => {
-    const pwd = prompt("请输入编辑密码 (如果是首次设置，请输入新密码):");
+    const pwd = prompt("请输入密码解锁:");
     if(pwd) { unlocked = true; el.btnUnlock.textContent = "🔓"; render(); }
   });
   
@@ -193,11 +181,10 @@ function bindEvents() {
   
   el.fileInput.addEventListener("change", (e) => {
     const r = new FileReader();
-    r.onload = () => { try { services = JSON.parse(r.result).services; render(); alert("导入成功！"); } catch(err){ alert("文件格式不对"); } };
+    r.onload = () => { try { services = JSON.parse(r.result).services; render(); alert("导入成功！"); } catch(err){ alert("文件错误"); } };
     r.readAsText(e.target.files[0]);
   });
   
-  // 表单保存
   el.form.addEventListener("submit", (e) => {
     e.preventDefault();
     const f = new FormData(el.form);
@@ -215,15 +202,16 @@ function bindEvents() {
     } else {
       services.push(item);
     }
-    saveAndRefresh();
+    localStorage.setItem(STORAGE_KEYS.data, JSON.stringify({services}));
+    render();
     closeModal();
   });
   
-  // 删除
   el.btnDelete.addEventListener("click", () => {
-    if(confirm("确定删除这个服务吗？")) {
+    if(confirm("确定删除吗？")) {
       services = services.filter(s => s.id !== editingId);
-      saveAndRefresh();
+      localStorage.setItem(STORAGE_KEYS.data, JSON.stringify({services}));
+      render();
       closeModal();
     }
   });
@@ -231,8 +219,4 @@ function bindEvents() {
   el.modal.addEventListener("click", (e) => { if(e.target===el.modal) closeModal(); });
 }
 
-function saveAndRefresh() {
-  localStorage.setItem(STORAGE_KEYS.data, JSON.stringify({services}));
-  render();
-}
 function loadData() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.data)); } catch { return null; } }
