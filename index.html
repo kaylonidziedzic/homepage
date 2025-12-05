@@ -2,17 +2,13 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>我的导航 | Service Atlas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minimal Nav</title>
   <link rel="stylesheet" href="styles.css" />
-  <meta name="description" content="A modern, glassmorphism-style personal dashboard.">
 </head>
 <body>
-  <div class="wallpaper" id="wallpaper"></div>
-  <div class="overlay"></div>
 
   <div class="layout">
-    
     <header class="clock-section">
       <div id="clock" class="clock">00:00</div>
       <div id="date" class="date">Loading...</div>
@@ -21,125 +17,58 @@
     <section class="interaction-bar">
       <div class="search-wrapper">
         <div class="search-glass">
-          <svg class="icon search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input id="searchInput" type="text" placeholder="搜索服务、标签或服务器..." autocomplete="off" />
-          <button id="clearSearch" class="icon-btn clear-btn" hidden>✕</button>
+          <span class="search-icon">🔍</span>
+          <input id="searchInput" type="text" placeholder="Type to search..." autocomplete="off" />
         </div>
       </div>
-      
-      <div class="filters-wrapper">
-        <div id="tagChips" class="chips-scroll">
-          </div>
-        <div class="tools-right">
-          <label class="fav-switch" title="仅显示收藏">
-            <input id="favoriteFilter" type="checkbox" />
-            <span class="star-toggle">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-              </svg>
-            </span>
-          </label>
-        </div>
-        <select id="tagFilter" hidden></select>
-      </div>
+      <div id="tagChips" class="filters-wrapper"></div>
     </section>
 
     <main class="grid-section">
-      <div class="grid-header">
-        <span id="statFilters" class="grid-title">全部服务</span>
-      </div>
-      <div id="cards" class="cards-grid">
-        </div>
+      <div id="cards" class="cards-grid"></div>
     </main>
 
     <footer class="dock-container">
-      <div class="dock-glass">
-        <button id="unlockButton" class="dock-item" title="解锁编辑">
-          <span class="emoji">🔒</span>
-        </button>
-        <div class="dock-divider"></div>
-        <button id="exportButton" class="dock-item" disabled title="导出配置">
-          <span class="emoji">📥</span>
-        </button>
-        <label class="dock-item" title="导入配置">
-          <span class="emoji">📤</span>
-          <input type="file" id="importInput" accept="application/json" disabled hidden />
-        </label>
-        <div class="dock-divider"></div>
-        <button id="addServiceBtn" class="dock-item highlight" disabled title="新增服务">
-          <span class="emoji">➕</span>
-        </button>
-      </div>
+      <button id="unlockButton" class="dock-btn" title="Unlock">🔒</button>
+      <button id="addBtn" class="dock-btn" title="Add">＋</button>
+      <button id="exportBtn" class="dock-btn" title="Export">↓</button>
+      <label class="dock-btn" title="Import" style="cursor: pointer;">
+        ↑ <input type="file" id="importInput" hidden accept=".json">
+      </label>
     </footer>
-
   </div>
 
   <div id="modalOverlay" class="modal-overlay" hidden>
-    <div class="modal-glass">
-      <div class="modal-header">
-        <div>
-          <h3 id="formTitle">配置服务</h3>
-          <p id="formSubtitle">修改本地配置</p>
+    <div class="modal-content">
+      <h3 style="margin-top:0; margin-bottom:20px;">Edit Service</h3>
+      <form id="serviceForm">
+        <div class="form-group">
+          <label>NAME</label>
+          <input name="name" class="form-input" required placeholder="Service Name" />
         </div>
-        <button id="cancelEdit" class="close-modal">✕</button>
-      </div>
-      
-      <form id="serviceForm" class="modal-form">
-        <div class="input-group full">
-          <input name="name" required placeholder=" " />
-          <label>服务名称</label>
+        <div class="form-group">
+          <label>URL</label>
+          <input name="url" class="form-input" required placeholder="http://..." />
         </div>
-        
-        <div class="input-group full">
-          <input name="url" required placeholder=" " />
-          <label>URL 地址 (http://...)</label>
+        <div class="form-group">
+          <label>ICON (Optional)</label>
+          <input name="icon" class="form-input" placeholder="Emoji (📊) or Image URL" />
         </div>
-
-        <div class="row">
-          <div class="input-group">
-            <input name="server" required placeholder=" " />
-            <label>服务器 ID</label>
-          </div>
-          <div class="input-group short">
-            <input name="port" type="number" placeholder=" " />
-            <label>端口</label>
-          </div>
+        <div class="form-group">
+          <label>DESCRIPTION</label>
+          <input name="desc" class="form-input" placeholder="Short description" />
         </div>
-
-        <div class="input-group full">
-          <input name="description" placeholder=" " />
-          <label>描述 / 备注</label>
+        <div class="form-group">
+          <label>TAGS</label>
+          <input name="tags" class="form-input" placeholder="nas, dev, media" />
         </div>
-
-        <div class="row">
-          <div class="input-group">
-            <input name="purpose" required placeholder=" " />
-            <label>用途 (如：监控)</label>
-          </div>
-          <div class="input-group">
-            <input name="tags" placeholder=" " />
-            <label>标签 (逗号分隔)</label>
-          </div>
-        </div>
-        
-        <div class="input-group full">
-            <input name="auth" placeholder=" " />
-            <label>认证信息 (可选)</label>
-        </div>
-
         <div class="modal-actions">
-          <button type="button" id="deleteBtn" class="btn-danger" hidden>删除</button>
-          <div class="spacer"></div>
-          <button type="submit" id="submitBtn" class="btn-primary">保存</button>
+          <button type="button" id="cancelBtn" class="btn-cancel">Cancel</button>
+          <button type="submit" class="btn-save">Save Changes</button>
         </div>
       </form>
     </div>
   </div>
-
-  <div id="toast" class="toast"></div>
 
   <script src="data.js"></script>
   <script src="app.js"></script>
