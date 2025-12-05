@@ -320,12 +320,19 @@ body {
   background: rgba(0,0,0,0.6);
   backdrop-filter: blur(8px);
   z-index: 200;
-  display: flex;
+  /* 移除原本的 display: flex; */
   align-items: center;
   justify-content: center;
   padding: 20px;
   opacity: 0;
   animation: fadeIn 0.3s forwards;
+  /* 新增：只有在没有 hidden 属性时才设置为 flex */
+  display: none; 
+}
+
+/* 新增这条规则 */
+.modal-overlay:not([hidden]) {
+  display: flex;
 }
 @keyframes fadeIn { to { opacity: 1; } }
 
