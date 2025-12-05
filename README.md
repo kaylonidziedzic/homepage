@@ -22,7 +22,7 @@
 > **注意**：请先将上面的链接替换为你自己的 GitHub 仓库地址。
 
 ### 2. Cloudflare Pages 部署
-Cloudflare 没有直接的克隆按钮，但操作非常简单：
+Cloudflare 操作非常简单：
 
 1. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)。
 2. 进入 **Workers & Pages** -> **Create Application** -> **Pages** -> **Connect to Git**。
