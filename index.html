@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>我的服务导航</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="page">
+    <header class="page__header">
+      <div class="title-block">
+        <h1>服务导航台</h1>
+        <p class="subtitle">按用途分组，一键直达所有服务器服务</p>
+      </div>
+      <div class="actions">
+        <button class="btn" id="toggleTheme" aria-label="切换主题">🌓 主题</button>
+        <button class="btn" id="favoriteOnly" aria-label="仅看常用">⭐ 常用</button>
+        <button class="btn" id="exportBtn" aria-label="导出配置">⬇️ 导出</button>
+        <label class="btn btn--ghost" for="importInput">⬆️ 导入</label>
+        <input type="file" id="importInput" accept="application/json" hidden />
+        <button class="btn" id="resetBtn" aria-label="恢复默认">♻️ 恢复默认</button>
+        <button class="btn btn--accent" id="editToggle" aria-label="启用编辑">🔒 启用编辑</button>
+      </div>
+    </header>
+
+    <section class="controls">
+      <div class="field">
+        <label for="search">搜索</label>
+        <input id="search" type="search" placeholder="按名称、描述、服务器、标签搜索" />
+      </div>
+      <div class="field">
+        <label for="serverFilter">服务器</label>
+        <select id="serverFilter"></select>
+      </div>
+      <div class="field">
+        <label for="tagFilter">标签</label>
+        <select id="tagFilter"></select>
+      </div>
+      <div class="field field--inline">
+        <label for="groupSelect">用途分组</label>
+        <select id="groupSelect"></select>
+      </div>
+    </section>
+
+    <section id="addForm" class="card card--form" hidden>
+      <h2>新增服务（编辑模式）</h2>
+      <form>
+        <div class="form-grid">
+          <label>名称<input name="name" required /></label>
+          <label>描述<input name="description" /></label>
+          <label>用途<input name="category" placeholder="如：监控、开发、存储" required /></label>
+          <label>服务器<input name="server" placeholder="如：edge-01" required /></label>
+          <label>访问地址（含协议）<input name="url" type="url" required /></label>
+          <label>端口<input name="port" type="number" placeholder="留空表示默认" /></label>
+          <label>认证方式/账号<input name="auth" placeholder="如：Basic / admin" /></label>
+          <label>标签（逗号分隔）<input name="tags" placeholder="如：prod,api" /></label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn--accent">保存服务</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="serviceContainer" class="service-container"></section>
+  </div>
+
+  <dialog id="qrDialog">
+    <div class="dialog__body">
+      <h3 id="qrTitle">二维码</h3>
+      <div id="qrCode"></div>
+      <div class="dialog__actions">
+        <button class="btn" id="closeQr">关闭</button>
+      </div>
+    </div>
+  </dialog>
+</body>
+</html>
