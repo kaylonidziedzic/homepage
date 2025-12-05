@@ -12,17 +12,15 @@ let editingId = null;
 const state = {
   search: "",
   tag: "",
-  server: "",
   favoritesOnly: false,
   favorites: loadFavorites(),
 };
 
 const elements = {
-  groups: document.getElementById("groups"),
+  cards: document.getElementById("cards"),
   search: document.getElementById("searchInput"),
   clearSearch: document.getElementById("clearSearch"),
   tagFilter: document.getElementById("tagFilter"),
-  serverFilter: document.getElementById("serverFilter"),
   favoriteFilter: document.getElementById("favoriteFilter"),
   tagChips: document.getElementById("tagChips"),
   unlockButton: document.getElementById("unlockButton"),
@@ -36,9 +34,6 @@ const elements = {
   formTitle: document.getElementById("formTitle"),
   formSubtitle: document.getElementById("formSubtitle"),
   toast: document.getElementById("toast"),
-  statServices: document.getElementById("statServices"),
-  statServers: document.getElementById("statServers"),
-  statFavorites: document.getElementById("statFavorites"),
   statFilters: document.getElementById("statFilters"),
 };
 
@@ -65,11 +60,6 @@ function bindEvents() {
 
   elements.tagFilter.addEventListener("change", (e) => {
     state.tag = e.target.value;
-    render();
-  });
-
-  elements.serverFilter.addEventListener("change", (e) => {
-    state.server = e.target.value;
     render();
   });
 
@@ -134,12 +124,6 @@ function bindEvents() {
 }
 
 function renderFilters() {
-  const serverOptions = ["", ...new Set(servers.map((s) => s.name))];
-  elements.serverFilter.innerHTML = serverOptions
-    .map((s) => `<option value="${s}">${s || "所有服务器"}</option>`)
-    .join("");
-  elements.serverFilter.value = state.server;
-
   const tags = new Set();
   services.forEach((svc) => svc.tags?.forEach((t) => tags.add(t)));
   const tagOptions = ["", ...tags];
@@ -179,34 +163,15 @@ function render() {
       .some((text) => text.toLowerCase().includes(state.search));
 
     const matchesTag = !state.tag || svc.tags?.includes(state.tag);
-    const matchesServer = !state.server || svc.server === state.server;
     const matchesFavorite = !state.favoritesOnly || state.favorites.has(svc.id);
-    return matchesSearch && matchesTag && matchesServer && matchesFavorite;
+    return matchesSearch && matchesTag && matchesFavorite;
   });
 
-  const groups = groupByPurpose(filtered);
-  elements.groups.innerHTML = groups
-    .map((group) => renderGroup(group.purpose, group.items))
-    .join("") || `<div class="empty">没有匹配的服务</div>`;
+  elements.cards.innerHTML =
+    filtered.map((svc) => renderCard(svc)).join("") || `<div class="empty">没有匹配的服务</div>`;
 
   bindCardActions();
-  updateStats(filtered.length);
-}
-
-function renderGroup(purpose, items) {
-  const count = items.length;
-  const serverSet = new Set(items.map((i) => i.server));
-  const serverText = Array.from(serverSet).join(", ");
-  const cards = items.map(renderCard).join("");
-  return `
-    <div class="group">
-      <div class="group-header">
-        <div class="group-title">${purpose || "未分类"}</div>
-        <div class="group-meta">${count} 个服务 · 服务器：${serverText}</div>
-      </div>
-      <div class="cards">${cards}</div>
-    </div>
-  `;
+  updateStats();
 }
 
 function renderCard(svc) {
@@ -299,16 +264,6 @@ function bindCardActions() {
       startEdit(id);
     });
   });
-}
-
-function groupByPurpose(list) {
-  const map = new Map();
-  list.forEach((svc) => {
-    const key = svc.purpose || "未分类";
-    if (!map.has(key)) map.set(key, []);
-    map.get(key).push(svc);
-  });
-  return Array.from(map.entries()).map(([purpose, items]) => ({ purpose, items }));
 }
 
 function toggleFavorite(id) {
@@ -454,24 +409,16 @@ function showToast(message, isError = false) {
   setTimeout(() => elements.toast.classList.remove("show"), 2000);
 }
 
-function updateStats(filteredCount) {
-  const totalServices = services.length;
-  const totalServers = new Set(servers.map((s) => s.name)).size;
-  const favoriteCount = state.favorites.size;
-  elements.statServices.textContent = totalServices;
-  elements.statServers.textContent = totalServers;
-  elements.statFavorites.textContent = favoriteCount;
-
+function updateStats() {
   const activeFilters = [];
   if (state.search) activeFilters.push(`搜索: ${state.search}`);
   if (state.tag) activeFilters.push(`标签: ${state.tag}`);
-  if (state.server) activeFilters.push(`服务器: ${state.server}`);
   if (state.favoritesOnly) activeFilters.push("仅收藏");
 
   if (activeFilters.length === 0) {
-    elements.statFilters.textContent = `全部显示 · ${filteredCount} 条`;
+    elements.statFilters.textContent = "全部服务 · 轻量卡片视图";
   } else {
-    elements.statFilters.textContent = `${filteredCount} 条 · ${activeFilters.join(" · ")}`;
+    elements.statFilters.textContent = `筛选中 · ${activeFilters.join(" · ")}`;
   }
 }
 

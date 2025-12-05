@@ -148,16 +148,16 @@ a.link:hover {
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 1fr);
-  gap: 24px;
-  align-items: stretch;
-  margin-bottom: 28px;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: start;
+  margin-bottom: 22px;
   background: var(--gradient-soft);
   border: 1px solid rgba(228, 231, 236, 0.86);
-  border-radius: 26px;
-  padding: clamp(22px, 3vw, 30px);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(12px);
+  border-radius: 22px;
+  padding: clamp(18px, 3vw, 24px);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px);
 }
 
 .hero-left .title {
@@ -168,31 +168,14 @@ a.link:hover {
 
 .hero-left .subtitle {
   color: var(--muted);
-  line-height: 1.65;
-  max-width: 680px;
+  line-height: 1.6;
+  max-width: 640px;
 }
 
 .hero-left .hero-note {
   color: var(--muted);
   font-size: 14px;
-  margin-top: 12px;
-}
-
-.hero-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.hero-chip {
-  padding: 6px 10px;
-  border-radius: 12px;
-  background: rgba(37, 99, 235, 0.1);
-  color: var(--accent-strong);
-  font-size: 13px;
-  border: 1px solid rgba(37, 99, 235, 0.18);
-  backdrop-filter: blur(4px);
+  margin-top: 8px;
 }
 
 .eyebrow {
@@ -259,9 +242,9 @@ a.link:hover {
 
 .controls {
   display: grid;
-  grid-template-columns: minmax(320px, 1.1fr) minmax(260px, 0.9fr);
-  gap: 14px;
-  margin-bottom: 16px;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
 .control-group {
@@ -601,6 +584,11 @@ a.link:hover {
   padding: 16px;
   box-shadow: var(--shadow-soft);
   margin-top: 18px;
+}
+
+.panel.slim {
+  padding: 12px;
+  margin-top: 12px;
 }
 
 .panel-head {

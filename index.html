@@ -28,7 +28,7 @@
       <div class="hero-left">
         <p class="eyebrow">仪表首页 / Homeboard</p>
         <div class="title">服务导航主页</div>
-        <div class="subtitle">集中浏览服务器与服务，快速打开、复制或分享，既能在桌面宽屏美观展示，也能在 iOS/Android 上顺滑使用。</div>
+        <div class="subtitle">集中浏览服务，轻量卡片式呈现，桌面与 iOS/Android 上都能快速触达。</div>
         <div class="hero-actions">
           <button id="unlockButton" class="btn primary">🔒 解锁编辑</button>
           <button id="exportButton" class="btn ghost" disabled>导出 JSON</button>
@@ -37,30 +37,7 @@
             <input type="file" id="importInput" accept="application/json" disabled />
           </label>
         </div>
-        <div class="hero-note">支持收藏、标签搜索、快速复制/二维码分享，按需解锁后可导入/导出或编辑已有服务。</div>
-        <div class="hero-list">
-          <div class="hero-chip">🚀 即点即开新标签</div>
-          <div class="hero-chip">📱 iPad/移动端优化</div>
-          <div class="hero-chip">🧭 Duckfolio / imsyy 风格混合</div>
-          <div class="hero-chip">🛡️ 解锁后随时导入/编辑</div>
-        </div>
-      </div>
-      <div class="hero-right">
-        <div class="stat-grid">
-          <div class="stat-card">
-            <div class="stat-value" id="statServices">0</div>
-            <div class="stat-label">总服务数</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value" id="statServers">0</div>
-            <div class="stat-label">服务器</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value" id="statFavorites">0</div>
-            <div class="stat-label">已收藏</div>
-          </div>
-        </div>
-        <div class="stat-hint" id="statFilters">全部显示中</div>
+        <div class="hero-note">Duckfolio 式简洁布局，保留收藏、复制、二维码与编辑，减少冗余信息。</div>
       </div>
     </header>
 
@@ -71,9 +48,6 @@
         <button id="clearSearch" class="icon-btn" title="清除搜索">✕</button>
       </div>
       <div class="control-group filters">
-        <select id="serverFilter">
-          <option value="">所有服务器</option>
-        </select>
         <select id="tagFilter">
           <option value="">所有标签</option>
         </select>
@@ -86,7 +60,15 @@
 
     <section id="tagChips" class="chips" aria-label="快速标签"></section>
 
-    <section id="groups" class="groups"></section>
+    <section class="panel slim">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">全部服务</div>
+          <div class="panel-subtitle" id="statFilters">轻量卡片视图，支持搜索 / 标签 / 收藏</div>
+        </div>
+      </div>
+      <div id="cards" class="cards flat"></div>
+    </section>
 
     <section id="addForm" class="panel" hidden>
       <div class="panel-head">
