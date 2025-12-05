@@ -19,16 +19,59 @@ const el = {
   fileInput: document.getElementById("fileInput")
 };
 
-document.addEventListener("DOMContentLoaded", () => {
-  const saved = loadData();
-  // 兼容 data.js 的初始数据
-  services = saved?.services || window.defaultServices || [];
+// --- 1. 初始化 (改为异步加载) ---
+document.addEventListener("DOMContentLoaded", async () => {
+  // 尝试从 API 加载数据
+  const apiData = await loadFromAPI();
+  
+  // 如果 API 返回了数据，就用 API 的；否则用默认的
+  services = apiData?.services || window.defaultServices || [];
   
   startClock();
   render();
   bindEvents();
 });
 
+// --- 2. 核心 API 通信函数 (新增) ---
+
+// 从后端获取数据
+async function loadFromAPI() {
+  try {
+    const res = await fetch('/api/data');
+    if (!res.ok) throw new Error("API连接失败");
+    return await res.json();
+  } catch (e) {
+    console.warn("无法连接后端，使用默认数据或本地缓存:", e);
+    // 如果后端挂了，可以尝试读取本地缓存兜底 (可选)
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.data)); } catch {}
+    return null;
+  }
+}
+
+// 保存数据到后端
+async function saveToAPI() {
+  try {
+    const payload = { services: services };
+    const res = await fetch('/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    
+    if (res.ok) {
+      render(); // 重新渲染页面
+      // 顺便也存一份本地，作为断网时的备份
+      localStorage.setItem(STORAGE_KEYS.data, JSON.stringify(payload));
+      alert("✅ 已同步到服务器");
+    } else {
+      throw new Error("服务器返回错误");
+    }
+  } catch (e) {
+    alert("❌ 保存失败: " + e.message);
+  }
+}
+
+// --- 3. 时钟逻辑 ---
 function startClock() {
   const update = () => {
     const now = new Date();
@@ -39,35 +82,30 @@ function startClock() {
   setInterval(update, 1000); update();
 }
 
-// 核心渲染函数
+// --- 4. 渲染逻辑 ---
 function render() {
-  // 1. 生成顶部标签
+  // 生成顶部标签
   const allTags = new Set();
   services.forEach(s => s.tags?.forEach(t => allTags.add(t)));
   const chipsHTML = [`<div class="chip ${state.tag===''?'active':''}" onclick="setTag('')">全部</div>`]
     .concat([...allTags].map(t => `<div class="chip ${state.tag===t?'active':''}" onclick="setTag('${t}')">${t}</div>`));
   el.tagChips.innerHTML = chipsHTML.join("");
 
-  // 2. 准备内容
+  // 准备内容
   let contentHTML = "";
   const isDefaultView = !state.search && !state.tag;
 
   if (isDefaultView) {
-    // --- 分组视图 (OneNav 风格) ---
-    // A. 未分类
+    // 分组视图
     const noTagServices = services.filter(s => !s.tags || s.tags.length === 0);
-    if (noTagServices.length > 0) {
-      contentHTML += renderGroup("未分类", noTagServices);
-    }
-    // B. 按标签分组
+    if (noTagServices.length > 0) contentHTML += renderGroup("未分类", noTagServices);
+    
     allTags.forEach(tag => {
       const groupServices = services.filter(s => s.tags?.includes(tag));
-      if (groupServices.length > 0) {
-        contentHTML += renderGroup(tag, groupServices);
-      }
+      if (groupServices.length > 0) contentHTML += renderGroup(tag, groupServices);
     });
   } else {
-    // --- 筛选视图 ---
+    // 筛选视图
     const filtered = services.filter(s => {
       const matchText = (s.name+s.url+s.tags?.join("")).toLowerCase().includes(state.search);
       const matchTag = !state.tag || s.tags?.includes(state.tag);
@@ -85,14 +123,7 @@ function render() {
 }
 
 function renderGroup(title, items) {
-  return `
-    <section>
-      <div class="group-title">${title}</div>
-      <div class="cards-grid">
-        ${items.map(renderCard).join("")}
-      </div>
-    </section>
-  `;
+  return `<section><div class="group-title">${title}</div><div class="cards-grid">${items.map(renderCard).join("")}</div></section>`;
 }
 
 function renderCard(svc) {
@@ -117,15 +148,12 @@ function renderCard(svc) {
 }
 
 function getIconHtml(svc) {
-  // 1. Emoji
   if (svc.icon && !svc.icon.startsWith("http") && svc.icon.length < 8) {
     return `<div class="card-icon-box" style="background:#f0f0f5; font-size:26px;">${svc.icon}</div>`;
   }
-  // 2. 图片
   if (svc.icon && svc.icon.startsWith("http")) {
     return `<div class="card-icon-box" style="background:transparent;"><img src="${svc.icon}" class="card-icon-img"></div>`;
   }
-  // 3. 首字母色块
   const colors = [
     "linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)",
     "linear-gradient(120deg, #d4fc79 0%, #96e6a1 100%)",
@@ -135,12 +163,12 @@ function getIconHtml(svc) {
   ];
   const idx = (svc.name.charCodeAt(0) || 0) % colors.length;
   const bg = colors[idx];
-  
   return `<div class="card-icon-box" style="background:${bg};">${svc.name[0].toUpperCase()}</div>`;
 }
 
-// 交互逻辑
+// --- 5. 交互与事件 ---
 window.setTag = (t) => { state.tag = t; render(); };
+
 window.openEdit = (id) => {
   if (!unlocked) return;
   editingId = id;
@@ -174,18 +202,27 @@ function bindEvents() {
     if(pwd) { unlocked = true; el.btnUnlock.textContent = "🔓"; render(); }
   });
   
+  // 导出按钮 (依然保留，作为本地备份功能)
   el.btnExport.addEventListener("click", () => {
     const blob = new Blob([JSON.stringify({services},null,2)], {type:"application/json"});
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "nav_backup.json"; a.click();
   });
   
+  // 导入按钮 (改为导入后自动同步上传到服务器)
   el.fileInput.addEventListener("change", (e) => {
     const r = new FileReader();
-    r.onload = () => { try { services = JSON.parse(r.result).services; render(); alert("导入成功！"); } catch(err){ alert("文件错误"); } };
+    r.onload = async () => { 
+      try { 
+        services = JSON.parse(r.result).services; 
+        await saveToAPI(); // 👈 导入后直接保存到服务器
+        alert("导入成功并已同步！"); 
+      } catch(err){ alert("文件格式错误"); } 
+    };
     r.readAsText(e.target.files[0]);
   });
   
-  el.form.addEventListener("submit", (e) => {
+  // 表单提交 (新增/修改)
+  el.form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const f = new FormData(el.form);
     const item = {
@@ -202,21 +239,21 @@ function bindEvents() {
     } else {
       services.push(item);
     }
-    localStorage.setItem(STORAGE_KEYS.data, JSON.stringify({services}));
-    render();
+    
+    // 👈 核心修改：保存到服务器，而不是 localStorage
+    await saveToAPI();
     closeModal();
   });
   
-  el.btnDelete.addEventListener("click", () => {
+  // 删除按钮
+  el.btnDelete.addEventListener("click", async () => {
     if(confirm("确定删除吗？")) {
       services = services.filter(s => s.id !== editingId);
-      localStorage.setItem(STORAGE_KEYS.data, JSON.stringify({services}));
-      render();
+      // 👈 核心修改：同步删除操作
+      await saveToAPI();
       closeModal();
     }
   });
 
   el.modal.addEventListener("click", (e) => { if(e.target===el.modal) closeModal(); });
 }
-
-function loadData() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.data)); } catch { return null; } }
