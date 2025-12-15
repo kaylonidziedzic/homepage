@@ -32,6 +32,12 @@ const Api = {
         body: JSON.stringify(payload)
       });
 
+      if (res.status === 403) {
+        const errData = await res.json();
+        alert("⚠️ " + errData.error);
+        return false;
+      }
+
       if (!res.ok) throw new Error("服务器返回错误");
 
       // 本地备份
