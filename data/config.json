@@ -37,6 +37,174 @@
     },
     "projects": [
         {
+            "id": "proj-nav-1",
+            "name": "OneNav API",
+            "description": "OneNav 接口服务",
+            "url": "https://dwz.ovh/viot5",
+            "icon": "🔗",
+            "tags": [
+                "自建",
+                "API"
+            ],
+            "source": "manual",
+            "status": "运行中"
+        },
+        {
+            "id": "proj-nav-2",
+            "name": "宝塔面板",
+            "description": "服务器运维面板",
+            "url": "http://13.94.40.16:19704/afce6c4e",
+            "icon": "🏗️",
+            "tags": [
+                "自建",
+                "运维"
+            ],
+            "source": "manual",
+            "status": "运行中"
+        },
+        {
+            "id": "proj-nav-3",
+            "name": "MoviePilot",
+            "description": "自动化观影工具",
+            "url": "http://111.119.214.7:51121",
+            "icon": "🎬",
+            "tags": [
+                "自建",
+                "媒体"
+            ],
+            "source": "manual",
+            "status": "运行中"
+        },
+        {
+            "id": "proj-nav-4",
+            "name": "MinIO",
+            "description": "对象存储服务",
+            "url": "https://minio.wowa.eu.org",
+            "icon": "🗄️",
+            "tags": [
+                "自建",
+                "存储"
+            ],
+            "source": "manual",
+            "status": "运行中"
+        },
+        {
+            "id": "proj-nav-5",
+            "name": "热榜 API",
+            "description": "每日热榜聚合",
+            "url": "https://hot.wowa.eu.org/",
+            "icon": "🔥",
+            "tags": [
+                "自建",
+                "API"
+            ],
+            "source": "manual",
+            "status": "运行中"
+        },
+        {
+            "id": "proj-nav-6",
+            "name": "订阅转换",
+            "description": "SubConverter 订阅管理",
+            "url": "https://sub.xxia.eu.org/subs",
+            "icon": "🔄",
+            "tags": [
+                "自建",
+                "工具"
+            ],
+            "source": "manual",
+            "status": "运行中"
+        },
+        {
+            "id": "proj-nav-7",
+            "name": "探针",
+            "description": "服务器状态监控",
+            "url": "https://tz.xxia.eu.org/",
+            "icon": "📊",
+            "tags": [
+                "自建",
+                "监控"
+            ],
+            "source": "manual",
+            "status": "运行中"
+        },
+        {
+            "id": "proj-nav-8",
+            "name": "Vertex",
+            "description": "PT 刷流/管理工具",
+            "url": "http://74.176.67.198:32310",
+            "icon": "🕸️",
+            "tags": [
+                "自建",
+                "PT"
+            ],
+            "source": "manual",
+            "status": "运行中"
+        },
+        {
+            "id": "proj-nav-9",
+            "name": "青龙面板",
+            "description": "定时任务管理平台",
+            "url": "http://20.255.152.162:35231/",
+            "icon": "🐉",
+            "tags": [
+                "自建",
+                "脚本"
+            ],
+            "source": "manual",
+            "status": "运行中"
+        },
+        {
+            "id": "proj-nav-10",
+            "name": "B站自动任务",
+            "description": "哔哩哔哩自动脚本",
+            "url": "http://74.176.67.198:22330/",
+            "icon": "📺",
+            "tags": [
+                "自建",
+                "任务"
+            ],
+            "source": "manual",
+            "status": "运行中"
+        },
+        {
+            "id": "proj-nav-11",
+            "name": "短链服务",
+            "description": "Sink 短链接生成",
+            "url": "https://sink.99lx.eu.org",
+            "icon": "🔗",
+            "tags": [
+                "自建"
+            ],
+            "source": "manual",
+            "status": "运行中"
+        },
+        {
+            "id": "proj-nav-12",
+            "name": "AdGuard Home",
+            "description": "网络广告拦截与 DNS",
+            "url": "https://ah.ve.sd/",
+            "icon": "🛡️",
+            "tags": [
+                "自建",
+                "DNS"
+            ],
+            "source": "manual",
+            "status": "运行中"
+        },
+        {
+            "id": "proj-nav-13",
+            "name": "ImgHub",
+            "description": "私有图床服务",
+            "url": "https://99lx.eu.org",
+            "icon": "🖼️",
+            "tags": [
+                "自建",
+                "图床"
+            ],
+            "source": "manual",
+            "status": "运行中"
+        },
+        {
             "id": "proj-private-demo",
             "name": "我的私密链接 (示例)",
             "description": "输入暗号后才能看到我",
@@ -51,43 +219,6 @@
             ],
             "source": "manual",
             "private": true
-        },
-        {
-            "id": "proj-1",
-            "name": "个人主页项目",
-            "description": "一个现代化的个人主页，展示我的项目和技能",
-            "url": "https://github.com/yourusername/homepage",
-            "icon": "🏠",
-            "status": "进行中",
-            "tech": [
-                "HTML",
-                "CSS",
-                "JavaScript",
-                "Node.js"
-            ],
-            "tags": [
-                "前端",
-                "后端"
-            ],
-            "stars": 0,
-            "lastUpdate": "2025-12-12",
-            "source": "manual"
-        },
-        {
-            "id": "proj-2",
-            "name": "示例项目 2",
-            "description": "这是另一个示例项目",
-            "url": "https://example.com",
-            "icon": "📦",
-            "status": "已完成",
-            "tech": [
-                "React",
-                "TypeScript"
-            ],
-            "tags": [
-                "前端"
-            ],
-            "source": "manual"
         }
     ]
 }
