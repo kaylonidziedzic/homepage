@@ -16,7 +16,7 @@ const AppState = {
   githubConfig: {},
 
   // UI 状态
-  unlocked: false,
+  unlocked: false, // 实际上不再使用，但保留以防万一有残留引用
   editingId: null,
 
   // 筛选状态
@@ -52,27 +52,8 @@ const AppState = {
       profileLocation: document.getElementById("profileLocation"),
       socialLinks: document.getElementById("socialLinks"),
 
-      // 项目编辑模态框
-      modal: document.getElementById("modalOverlay"),
-      form: document.getElementById("serviceForm"),
-      btnDelete: document.getElementById("btnDelete"),
-
-      // GitHub 配置模态框
-      githubModal: document.getElementById("githubModalOverlay"),
-      githubForm: document.getElementById("githubForm"),
-      githubEnabled: document.getElementById("githubEnabled"),
-      githubUsername: document.getElementById("githubUsername"),
-      githubToken: document.getElementById("githubToken"),
-      excludeForked: document.getElementById("excludeForked"),
-      excludePrivate: document.getElementById("excludePrivate"),
-
       // Dock 按钮
-      btnUnlock: document.getElementById("btnUnlock"),
-      btnAdd: document.getElementById("btnAdd"),
-      btnGithub: document.getElementById("btnGithub"),
-      btnExport: document.getElementById("btnExport"),
-      btnTheme: document.getElementById("btnTheme"),
-      fileInput: document.getElementById("fileInput")
+      btnTheme: document.getElementById("btnTheme")
     };
   },
 
@@ -98,13 +79,10 @@ const AppState = {
   },
 
   /**
-   * 设置解锁状态
+   * 设置解锁状态 (不再使用，空实现)
    */
   setUnlocked(value) {
-    this.unlocked = value;
-    if (this.el?.btnUnlock) {
-      this.el.btnUnlock.textContent = value ? "🔓" : "🔒";
-    }
+    // Read-only mode: do nothing
   },
 
   /**

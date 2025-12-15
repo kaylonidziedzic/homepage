@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>我的导航</title>
   <link rel="stylesheet" href="styles.css?v=6" />
 </head>
+
 <body>
-  
+
   <div class="layout">
     <header class="header-section">
       <div id="clock" class="clock">00:00</div>
@@ -33,117 +35,12 @@
     <div id="tagChips" class="chips-row"></div>
 
     <main id="mainContent" class="content-area">
-      </main>
+    </main>
   </div>
 
   <footer class="dock">
-    <button id="btnUnlock" class="dock-btn" title="解锁编辑">🔒</button>
-    <div class="divider"></div>
-    <button id="btnAdd" class="dock-btn" title="新增服务">＋</button>
-    <button id="btnGithub" class="dock-btn" title="GitHub 同步">🐙</button>
-    <button id="btnExport" class="dock-btn" title="导出配置">↓</button>
-    <label class="dock-btn" title="导入配置" style="cursor: pointer;">
-      ↑ <input type="file" id="fileInput" hidden accept=".json">
-    </label>
-    <div class="divider"></div>
-    <button id="btnTheme" class="dock-btn" title="切换主题">🌙</button>
+    <button id="btnTheme" class="dock-btn" title="查看模式">🌙</button>
   </footer>
-
-  <div id="modalOverlay" class="modal-overlay" hidden>
-    <div class="modal-box">
-      <h3 class="modal-title">配置项目</h3>
-      <form id="serviceForm">
-        <div class="input-row">
-          <label class="input-label">项目名称</label>
-          <input name="name" class="input-field" required placeholder="例如：我的博客" />
-        </div>
-        <div class="input-row">
-          <label class="input-label">项目链接 (URL)</label>
-          <input name="url" class="input-field" required placeholder="http://..." />
-        </div>
-        <div class="input-row">
-          <label class="input-label">图标 (可选)</label>
-          <input name="icon" class="input-field" placeholder="填 Emoji (📺) 或图片链接" />
-        </div>
-        <div class="input-row">
-          <label class="input-label">描述备注</label>
-          <input name="desc" class="input-field" placeholder="简短的描述" />
-        </div>
-        <div class="input-row">
-          <label class="input-label">状态</label>
-          <select name="status" class="input-field">
-            <option value="">未设置</option>
-            <option value="进行中">进行中</option>
-            <option value="已完成">已完成</option>
-            <option value="运行中">运行中</option>
-            <option value="维护中">维护中</option>
-            <option value="已暂停">已暂停</option>
-          </select>
-        </div>
-        <div class="input-row">
-          <label class="input-label">技术栈 (用逗号分隔)</label>
-          <input name="tech" class="input-field" placeholder="例如：React, Node.js, Docker" />
-        </div>
-        <div class="input-row">
-          <label class="input-label">标签分类 (用于分组)</label>
-          <input name="tags" class="input-field" placeholder="例如：前端, 后端, 开发" />
-        </div>
-
-        <div class="modal-btns">
-          <button type="button" class="btn-delete" id="btnDelete" hidden>删除</button>
-          <div style="flex:1"></div>
-          <button type="button" class="btn-close" onclick="closeModal()">取消</button>
-          <button type="submit" class="btn-submit">保存</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- GitHub 配置模态框 -->
-  <div id="githubModalOverlay" class="modal-overlay" hidden>
-    <div class="modal-box">
-      <h3 class="modal-title">GitHub 同步配置</h3>
-      <form id="githubForm">
-        <div class="input-row">
-          <label class="input-label">
-            <input type="checkbox" id="githubEnabled" style="width:auto;margin-right:8px;"/>
-            启用 GitHub 自动同步
-          </label>
-        </div>
-        <div class="input-row">
-          <label class="input-label">GitHub 用户名</label>
-          <input name="username" id="githubUsername" class="input-field" placeholder="例如：octocat" />
-        </div>
-        <div class="input-row">
-          <label class="input-label">GitHub Token (可选)</label>
-          <input name="token" id="githubToken" class="input-field" type="password" placeholder="用于提高 API 限额" />
-          <small style="color:#888;font-size:12px;margin-top:4px;">
-            不填写也可以，但每小时只能请求 60 次。<br/>
-            <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--accent);">创建 Token</a>
-          </small>
-        </div>
-        <div class="input-row">
-          <label class="input-label">
-            <input type="checkbox" id="excludeForked" checked style="width:auto;margin-right:8px;"/>
-            排除 Fork 的仓库
-          </label>
-        </div>
-        <div class="input-row">
-          <label class="input-label">
-            <input type="checkbox" id="excludePrivate" style="width:auto;margin-right:8px;"/>
-            排除私有仓库
-          </label>
-        </div>
-
-        <div class="modal-btns">
-          <button type="button" class="btn-test" id="btnTestGithub">测试连接</button>
-          <div style="flex:1"></div>
-          <button type="button" class="btn-close" onclick="closeGithubModal()">取消</button>
-          <button type="submit" class="btn-submit">保存并同步</button>
-        </div>
-      </form>
-    </div>
-  </div>
 
   <script src="data.js?v=FIX_CACHE_ISSUE"></script>
   <!-- 模块化 JS -->
@@ -155,4 +52,5 @@
   <script src="js/github.js"></script>
   <script src="js/app.js"></script>
 </body>
+
 </html>

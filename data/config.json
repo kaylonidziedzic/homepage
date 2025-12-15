@@ -30,7 +30,6 @@
     "githubConfig": {
         "enabled": true,
         "username": "yourusername",
-        "token": "",
         "syncRepos": true,
         "excludeForked": true,
         "excludePrivate": false
