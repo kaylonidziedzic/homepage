@@ -19,7 +19,19 @@ function bindEvents() {
 
   // 搜索
   el.search.addEventListener("input", (e) => {
-    AppState.setSearch(e.target.value);
+    const val = e.target.value.trim();
+
+    // 检查暗号
+    if (val === AppState.secretCode) {
+      AppState.secretMode = !AppState.secretMode; // 切换状态
+      e.target.value = ""; // 清空输入框
+      AppState.setSearch("");
+      alert(AppState.secretMode ? "🔓 隐私模式已解锁" : "🔒 隐私模式已关闭");
+      Render.main();
+      return;
+    }
+
+    AppState.setSearch(val);
     Render.main();
   });
 

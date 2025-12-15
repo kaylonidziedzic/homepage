@@ -16,7 +16,8 @@ const AppState = {
   githubConfig: {},
 
   // UI 状态
-  unlocked: false, // 实际上不再使用，但保留以防万一有残留引用
+  unlocked: false,
+  secretMode: false, // 隐私模式状态
   editingId: null,
 
   // 筛选状态
@@ -65,6 +66,7 @@ const AppState = {
     this.profile = data.profile || {};
     this.githubConfig = data.githubConfig || {};
     this.projects = data.projects || data.services || [];
+    this.secretCode = data.secretCode || "123456"; // 默认暗号
   },
 
   /**
@@ -104,7 +106,11 @@ const AppState = {
    */
   getAllTags() {
     const tags = new Set();
-    this.projects.forEach(p => p.tags?.forEach(t => tags.add(t)));
+    this.projects.forEach(p => {
+      // 隐私模式下才统计私有项目的标签
+      if (p.private && !this.secretMode) return;
+      p.tags?.forEach(t => tags.add(t))
+    });
     return tags;
   },
 
@@ -113,6 +119,10 @@ const AppState = {
    */
   getFilteredProjects() {
     return this.projects.filter(p => {
+      // 1. 隐私检查
+      if (p.private && !this.secretMode) return false;
+
+      // 2. 搜索和标签过滤
       const matchText = (p.name + p.url + (p.tags?.join("") || ""))
         .toLowerCase()
         .includes(this.filter.search);
