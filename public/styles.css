@@ -577,3 +577,35 @@ body::before {
   }
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 }
+
+/* 在线状态指示灯 */
+.ping-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-left: 6px;
+  background-color: #ccc; /* 默认灰色 */
+  vertical-align: middle;
+  transition: background-color 0.3s;
+}
+
+.ping-dot.pending {
+  background-color: #9ca3af;
+  animation: pulse 1.5s infinite;
+}
+
+.ping-dot.online {
+  background-color: #10b981; /* 绿色 */
+  box-shadow: 0 0 4px #10b981;
+}
+
+.ping-dot.offline {
+  background-color: #ef4444; /* 红色 */
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}

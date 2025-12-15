@@ -152,13 +152,18 @@ const Render = {
       : '';
 
     return `
-      <div class="card" data-url="${Utils.escapeHtml(safeUrl)}">
+      <div class="card" data-url="${Utils.escapeHtml(safeUrl)}" data-id="${Utils.escapeHtml(proj.id)}">
         ${statusHtml}
         ${githubBadge}
         <div class="card-header">
           ${iconHtml}
           <div class="card-info">
-            <div class="card-name">${safeName} ${starsHtml}</div>
+            <div class="card-name">
+              ${safeName}
+              ${starsHtml}
+              <!-- 在线状态指示灯 -->
+              ${proj.source === "manual" ? `<span class="ping-dot pending" title="检测中..."></span>` : ""}
+            </div>
             <div class="card-desc">${desc}</div>
           </div>
         </div>

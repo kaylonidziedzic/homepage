@@ -123,10 +123,36 @@ app.get('/api/github/repos', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-});
+  // 7. API: 检查网站状态
+  app.get('/api/check-status', async (req, res) => {
+    const { url } = req.query;
+    if (!url) {
+      return res.status(400).json({ error: 'URL required' });
+    }
 
-// 7. 启动服务
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+    try {
+      // 设置 3秒超时，避免请求堆积
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 3000);
+
+      const response = await fetch(url, {
+        method: "HEAD", // 只请求头，减少流量
+        signal: controller.signal,
+        headers: {
+          "User-Agent": "Mozilla/5.0 (compatible; StatusBot/1.0)"
+        }
+      });
+
+      clearTimeout(timeout);
+      // 只要有响应（即使 404/403/500）都算服务器在线
+      res.json({ online: true, status: response.status });
+    } catch (error) {
+      res.json({ online: false, error: error.message });
+    }
+  });
+
+  // 8. 启动服务
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+  });
 
