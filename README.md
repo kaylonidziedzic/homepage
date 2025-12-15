@@ -8,23 +8,24 @@
 
 - **极速部署**：支持 Vercel、Cloudflare Pages、EdgeOne 等平台一键部署。
 - **配置简单**：所有数据存储在 `data/config.json` 中，修改文件即可更新内容。
+- **隐私模式**：支持设置“隐形链接”，通过搜索框暗号解锁显示。
 - **GitHub 同步**：自动获取并展示你的 GitHub 仓库列表。
 - **现代化设计**：玻璃拟态风格，响应式布局，极佳的视觉体验。
-- **完全免费**：无需购买服务器，依托免费的 Serverless 平台即可运行。
 
 ## 🚀 快速开始
 
 ### 1. Fork 本项目
 点击右上角的 **Fork** 按钮，将代码复制到你的 GitHub 仓库。
+**强烈建议：如果您打算使用隐私模式，请将您的 Fork 仓库设置为 Private（私有）。**
 
 ### 2. 修改配置
-编辑 `data/config.json` 文件，填入你的个人信息和导航链接。
+编辑 `data/config.json` 文件，填入你的个人信息。
 
 ```json
 {
+  "secretCode": "hello",  // 设置你的隐私暗号
   "profile": {
     "name": "你的名字",
-    "bio": "全栈开发者",
     ...
   },
   "projects": [
@@ -41,23 +42,21 @@
 3.  导入你 Fork 的仓库。
 4.  点击 **Deploy**。
 
-部署完成后，你的个人主页就上线了！
-
-> 更多部署方式（Cloudflare / EdgeOne）请参考 [DEPLOY.md](DEPLOY.md)。
-
 ## ⚙️ 功能说明
 
-### 数据管理
-本项目采用 **GitOps** 模式管理数据。由于 Serverless 环境的特性，网页上的“添加/编辑”功能已被禁用（只读模式）。
-如需更新内容，请直接在 GitHub 上编辑 `data/config.json` 文件并提交。
+### 🕵️ 隐私模式 (Private Mode)
+不想让所有人看到的链接，可以隐藏起来。
+1.  在 `data/config.json` 中设置 `secretCode` (例如 `"open sesame"`)。
+2.  在不想展示的项目里添加 `"private": true`。
+3.  **解锁方法**：在网页顶部的**搜索框**中输入您的暗号，私有链接就会出现。
 
-### GitHub 集成
-配置中开启 `githubConfig` 后，系统会自动拉取你的置顶或最新仓库展示。
-如果遇到 API 限制，可以在 Vercel 环境变量或配置文件中配置 Token。
+### 🐙 GitHub 集成 (可选)
+如果需要同步 GitHub 仓库且不触发 API 限制：
+1.  在 Vercel 项目设置 -> **Environment Variables**。
+2.  添加变量名 `GITHUB_TOKEN`，值为您的 GitHub Personal Access Token。
+3.  (不要将 Token 直接写在 config.json 代码里，以免泄露)。
 
-## 🛠️ 本地开发
-
-如果你想在本地预览或修改代码：
+### 🛠️ 本地开发
 
 ```bash
 # 安装依赖
@@ -66,8 +65,7 @@ npm install
 # 启动服务
 npm start
 ```
-
-打开浏览器访问 `http://localhost:3000`。
+访问 `http://localhost:3000`。
 
 ## 📄 许可证
 
