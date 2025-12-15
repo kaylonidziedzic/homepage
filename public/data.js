@@ -63,6 +63,62 @@ window.defaultData = {
       server: "hera-dev",
       source: "manual"
     }
+    ,
+    {
+      id: "proj-4",
+      name: "Docker 管理",
+      description: "Portainer 容器管理面板",
+      url: "https://portainer.local:9000",
+      icon: "🐳",
+      status: "运行中",
+      tech: ["Docker", "Go"],
+      tags: ["运维", "工具"],
+      source: "manual"
+    },
+    {
+      id: "proj-5",
+      name: "家庭影院",
+      description: "Jellyfin 媒体服务器，存储电影和剧集",
+      url: "https://jellyfin.local:8096",
+      icon: "🎬",
+      status: "已完成",
+      tech: ["C#", ".NET"],
+      tags: ["娱乐", "自托管"],
+      source: "manual"
+    },
+    {
+      id: "proj-6",
+      name: "文件同步",
+      description: "Syncthing 跨设备文件同步工具",
+      url: "https://syncthing.local:8384",
+      icon: "🔄",
+      status: "维护中",
+      tech: ["Go", "P2P"],
+      tags: ["工具", "存储"],
+      source: "manual"
+    },
+    {
+      id: "proj-7",
+      name: "密码管理",
+      description: "Vaultwarden 密码管理器自托管实例",
+      url: "https://vault.local",
+      icon: "🔒",
+      status: "运行中",
+      tech: ["Rust", "Security"],
+      tags: ["安全", "工具"],
+      source: "manual"
+    },
+    {
+      id: "proj-8",
+      name: "智能家居",
+      description: "Home Assistant 智能家居控制中心",
+      url: "https://hass.local:8123",
+      icon: "🏠",
+      status: "进行中",
+      tech: ["Python", "IoT"],
+      tags: ["IoT", "生活"],
+      source: "manual"
+    }
   ]
 };
 

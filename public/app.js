@@ -6,6 +6,50 @@ let unlocked = false;
 let editingId = null;
 const state = { search: "", tag: "", favoritesOnly: false, favorites: new Set() };
 
+// XSS 防护：HTML 转义函数
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// 验证 URL 格式
+function isValidUrl(str) {
+  try {
+    const url = new URL(str);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+// 主题管理
+function initTheme() {
+  const savedTheme = localStorage.getItem('nav-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+
+  document.documentElement.setAttribute('data-theme', theme);
+  updateThemeButton(theme);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  const newTheme = current === 'dark' ? 'light' : 'dark';
+
+  document.documentElement.setAttribute('data-theme', newTheme);
+  localStorage.setItem('nav-theme', newTheme);
+  updateThemeButton(newTheme);
+}
+
+function updateThemeButton(theme) {
+  if (el.btnTheme) {
+    el.btnTheme.textContent = theme === 'dark' ? '☀️' : '🌙';
+    el.btnTheme.title = theme === 'dark' ? '切换到亮色模式' : '切换到深色模式';
+  }
+}
+
 const el = {
   clock: document.getElementById("clock"),
   date: document.getElementById("date"),
@@ -38,16 +82,23 @@ const el = {
   btnAdd: document.getElementById("btnAdd"),
   btnGithub: document.getElementById("btnGithub"),
   btnExport: document.getElementById("btnExport"),
+  btnTheme: document.getElementById("btnTheme"),
   fileInput: document.getElementById("fileInput")
 };
 
 // --- 1. 初始化 (改为异步加载) ---
 document.addEventListener("DOMContentLoaded", async () => {
+  // 初始化主题
+  initTheme();
+
   // 尝试从 API 加载数据
   const apiData = await loadFromAPI();
 
+  // 修复：明确检查是否为空对象
+  const hasApiData = apiData && Object.keys(apiData).length > 0;
+
   // 如果 API 返回了数据，就用 API 的；否则用默认的
-  const data = apiData || window.defaultData || {};
+  const data = hasApiData ? apiData : (window.defaultData || {});
   profile = data.profile || window.defaultData?.profile || {};
   githubConfig = data.githubConfig || window.defaultData?.githubConfig || {};
   projects = data.projects || data.services || window.defaultServices || [];
@@ -74,7 +125,7 @@ async function loadFromAPI() {
   } catch (e) {
     console.warn("无法连接后端，使用默认数据或本地缓存:", e);
     // 如果后端挂了，可以尝试读取本地缓存兜底 (可选)
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.data)); } catch {}
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.data)); } catch { }
     return null;
   }
 }
@@ -107,7 +158,7 @@ function startClock() {
   const update = () => {
     const now = new Date();
     el.clock.textContent = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
-    const opts = { year:'numeric', month:'long', day:'numeric', weekday:'long' };
+    const opts = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
     el.date.textContent = now.toLocaleDateString('zh-CN', opts);
   };
   setInterval(update, 1000); update();
@@ -120,16 +171,17 @@ function renderProfile() {
   el.profileAvatar.src = profile.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=Default";
   el.profileName.textContent = profile.name || "未设置";
   el.profileBio.textContent = profile.bio || "";
-  el.profileLocation.innerHTML = profile.location ? `📍 ${profile.location}` : "";
+  el.profileLocation.innerHTML = profile.location ? `📍 ${escapeHtml(profile.location)}` : "";
 
   // 渲染社交链接
   if (profile.socials && profile.socials.length > 0) {
-    el.socialLinks.innerHTML = profile.socials.map(s =>
-      `<a href="${s.url}" class="social-link" target="_blank" rel="noopener">
-        <span class="icon">${s.icon}</span>
-        <span>${s.name}</span>
-      </a>`
-    ).join("");
+    el.socialLinks.innerHTML = profile.socials.map(s => {
+      const safeUrl = isValidUrl(s.url) ? s.url : '#';
+      return `<a href="${escapeHtml(safeUrl)}" class="social-link" target="_blank" rel="noopener">
+        <span class="icon">${escapeHtml(s.icon)}</span>
+        <span>${escapeHtml(s.name)}</span>
+      </a>`;
+    }).join("");
   }
 }
 
@@ -138,8 +190,8 @@ function render() {
   // 生成顶部标签
   const allTags = new Set();
   projects.forEach(s => s.tags?.forEach(t => allTags.add(t)));
-  const chipsHTML = [`<div class="chip ${state.tag===''?'active':''}" onclick="setTag('')">全部</div>`]
-    .concat([...allTags].map(t => `<div class="chip ${state.tag===t?'active':''}" onclick="setTag('${t}')">${t}</div>`));
+  const chipsHTML = [`<div class="chip ${state.tag === '' ? 'active' : ''}" data-tag="">全部</div>`]
+    .concat([...allTags].map(t => `<div class="chip ${state.tag === t ? 'active' : ''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</div>`));
   el.tagChips.innerHTML = chipsHTML.join("");
 
   // 准备内容
@@ -158,7 +210,7 @@ function render() {
   } else {
     // 筛选视图
     const filtered = projects.filter(s => {
-      const matchText = (s.name+s.url+s.tags?.join("")).toLowerCase().includes(state.search);
+      const matchText = (s.name + s.url + s.tags?.join("")).toLowerCase().includes(state.search);
       const matchTag = !state.tag || s.tags?.includes(state.tag);
       return matchText && matchTag;
     });
@@ -180,15 +232,17 @@ function renderGroup(title, items) {
 function renderCard(proj) {
   const iconHtml = getIconHtml(proj);
   const editBtn = unlocked && proj.source === 'manual'
-    ? `<button class="card-edit" onclick="event.stopPropagation(); openEdit('${proj.id}')">✎</button>` : '';
+    ? `<button class="card-edit" data-edit-id="${escapeHtml(proj.id)}">✎</button>` : '';
 
   let domain = proj.url;
-  try { domain = new URL(proj.url).hostname; } catch(e){}
-  const desc = proj.description || domain;
+  try { domain = new URL(proj.url).hostname; } catch (e) { }
+  const desc = escapeHtml(proj.description || domain);
+  const safeName = escapeHtml(proj.name);
+  const safeUrl = isValidUrl(proj.url) ? proj.url : '#';
 
   // 状态标签
   const statusHtml = proj.status
-    ? `<div class="card-status status-${proj.status}">${proj.status}</div>`
+    ? `<div class="card-status status-${escapeHtml(proj.status)}">${escapeHtml(proj.status)}</div>`
     : '';
 
   // GitHub 来源标签（如果是 GitHub 同步的项目）
@@ -198,7 +252,7 @@ function renderCard(proj) {
 
   // Stars 显示
   const starsHtml = proj.stars !== undefined && proj.stars > 0
-    ? `<span class="card-stars">⭐ ${proj.stars}</span>`
+    ? `<span class="card-stars">⭐ ${parseInt(proj.stars) || 0}</span>`
     : '';
 
   // 技术栈标签
@@ -207,17 +261,17 @@ function renderCard(proj) {
   if (proj.tech) techItems.push(...proj.tech);
 
   const techHtml = techItems.length > 0
-    ? `<div class="card-tech">${techItems.slice(0, 5).map(t => `<span class="tech-tag">${t}</span>`).join('')}</div>`
+    ? `<div class="card-tech">${techItems.slice(0, 5).map(t => `<span class="tech-tag">${escapeHtml(t)}</span>`).join('')}</div>`
     : '';
 
   return `
-    <div class="card" onclick="window.open('${proj.url}', '_blank')">
+    <div class="card" data-url="${escapeHtml(safeUrl)}">
       ${statusHtml}
       ${githubBadge}
       <div class="card-header">
         ${iconHtml}
         <div class="card-info">
-          <div class="card-name">${proj.name} ${starsHtml}</div>
+          <div class="card-name">${safeName} ${starsHtml}</div>
           <div class="card-desc">${desc}</div>
         </div>
       </div>
@@ -229,10 +283,11 @@ function renderCard(proj) {
 
 function getIconHtml(svc) {
   if (svc.icon && !svc.icon.startsWith("http") && svc.icon.length < 8) {
-    return `<div class="card-icon-box" style="background:#f0f0f5; font-size:26px;">${svc.icon}</div>`;
+    return `<div class="card-icon-box" style="background:#f0f0f5; font-size:26px;">${escapeHtml(svc.icon)}</div>`;
   }
   if (svc.icon && svc.icon.startsWith("http")) {
-    return `<div class="card-icon-box" style="background:transparent;"><img src="${svc.icon}" class="card-icon-img"></div>`;
+    const safeIconUrl = isValidUrl(svc.icon) ? svc.icon : '';
+    return `<div class="card-icon-box" style="background:transparent;"><img src="${escapeHtml(safeIconUrl)}" class="card-icon-img"></div>`;
   }
   const colors = [
     "linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)",
@@ -243,11 +298,10 @@ function getIconHtml(svc) {
   ];
   const idx = (svc.name.charCodeAt(0) || 0) % colors.length;
   const bg = colors[idx];
-  return `<div class="card-icon-box" style="background:${bg};">${svc.name[0].toUpperCase()}</div>`;
+  return `<div class="card-icon-box" style="background:${bg};">${escapeHtml(svc.name[0].toUpperCase())}</div>`;
 }
 
-// --- 5. 交互与事件 ---
-window.setTag = (t) => { state.tag = t; render(); };
+// --- 6. 交互与事件 ---
 
 window.openEdit = (id) => {
   if (!unlocked) return;
@@ -269,24 +323,72 @@ window.openEdit = (id) => {
     el.btnDelete.hidden = true;
   }
 };
-window.closeModal = () => { el.modal.hidden = true; el.modal.setAttribute('hidden',''); };
+window.closeModal = () => { el.modal.hidden = true; el.modal.setAttribute('hidden', ''); };
 
 function bindEvents() {
   el.search.addEventListener("input", (e) => { state.search = e.target.value.toLowerCase(); render(); });
-  
+
+  // 卡片点击事件委托
+  el.mainContent.addEventListener("click", (e) => {
+    // 处理编辑按钮点击
+    const editBtn = e.target.closest('.card-edit');
+    if (editBtn) {
+      e.stopPropagation();
+      const id = editBtn.dataset.editId;
+      if (id) openEdit(id);
+      return;
+    }
+
+    // 处理卡片点击
+    const card = e.target.closest('.card');
+    if (card && card.dataset.url) {
+      window.open(card.dataset.url, '_blank');
+    }
+  });
+
+  // 标签点击事件委托
+  el.tagChips.addEventListener("click", (e) => {
+    const chip = e.target.closest('.chip');
+    if (chip) {
+      const tag = chip.dataset.tag || '';
+      state.tag = tag;
+      render();
+    }
+  });
+
   el.btnAdd.addEventListener("click", () => {
-    if(!unlocked) return alert("请先点击左下角的 🔒 解锁编辑");
+    if (!unlocked) return alert("请先点击左下角的 🔒 解锁编辑");
     openEdit(null);
   });
-  
-  el.btnUnlock.addEventListener("click", () => {
+
+  el.btnUnlock.addEventListener("click", async () => {
     const pwd = prompt("请输入密码解锁:");
-    if(pwd) { unlocked = true; el.btnUnlock.textContent = "🔓"; render(); }
+    if (!pwd) return;
+
+    try {
+      const res = await fetch('/api/auth/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pwd })
+      });
+
+      if (res.ok) {
+        unlocked = true;
+        el.btnUnlock.textContent = "🔓";
+        render();
+        alert("✅ 解锁成功");
+      } else {
+        const data = await res.json();
+        alert("❌ " + (data.error || "密码错误"));
+      }
+    } catch (e) {
+      alert("❌ 验证失败: " + e.message);
+    }
   });
-  
+
   // 导出按钮 (依然保留，作为本地备份功能)
   el.btnExport.addEventListener("click", () => {
-    const blob = new Blob([JSON.stringify({profile, projects},null,2)], {type:"application/json"});
+    const blob = new Blob([JSON.stringify({ profile, projects }, null, 2)], { type: "application/json" });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "nav_backup.json"; a.click();
   });
 
@@ -301,7 +403,7 @@ function bindEvents() {
         renderProfile();
         await saveToAPI(); // 👈 导入后直接保存到服务器
         alert("导入成功并已同步！");
-      } catch(err){ alert("文件格式错误"); }
+      } catch (err) { alert("文件格式错误"); }
     };
     r.readAsText(e.target.files[0]);
   });
@@ -317,11 +419,11 @@ function bindEvents() {
       icon: f.get("icon"),
       description: f.get("desc"),
       status: f.get("status"),
-      tech: f.get("tech").split(/[,，]/).map(t=>t.trim()).filter(Boolean),
-      tags: f.get("tags").split(/[,，]/).map(t=>t.trim()).filter(Boolean)
+      tech: f.get("tech").split(/[,，]/).map(t => t.trim()).filter(Boolean),
+      tags: f.get("tags").split(/[,，]/).map(t => t.trim()).filter(Boolean)
     };
 
-    if(editingId) {
+    if (editingId) {
       projects = projects.map(s => s.id === editingId ? item : s);
     } else {
       projects.push(item);
@@ -334,7 +436,7 @@ function bindEvents() {
 
   // 删除按钮
   el.btnDelete.addEventListener("click", async () => {
-    if(confirm("确定删除吗？")) {
+    if (confirm("确定删除吗？")) {
       projects = projects.filter(s => s.id !== editingId);
       // 👈 核心修改：同步删除操作
       await saveToAPI();
@@ -342,7 +444,7 @@ function bindEvents() {
     }
   });
 
-  el.modal.addEventListener("click", (e) => { if(e.target===el.modal) closeModal(); });
+  el.modal.addEventListener("click", (e) => { if (e.target === el.modal) closeModal(); });
 
   // GitHub 按钮事件
   el.btnGithub.addEventListener("click", () => {
@@ -360,7 +462,10 @@ function bindEvents() {
     await testGithubConnection();
   });
 
-  el.githubModal.addEventListener("click", (e) => { if(e.target===el.githubModal) closeGithubModal(); });
+  el.githubModal.addEventListener("click", (e) => { if (e.target === el.githubModal) closeGithubModal(); });
+
+  // 主题切换按钮
+  el.btnTheme.addEventListener("click", toggleTheme);
 }
 
 // --- GitHub 同步功能 ---
@@ -387,7 +492,6 @@ window.closeGithubModal = () => {
 // 测试 GitHub 连接
 async function testGithubConnection() {
   const username = el.githubUsername.value.trim();
-  const token = el.githubToken.value.trim();
 
   if (!username) {
     alert("请先填写 GitHub 用户名");
@@ -395,7 +499,8 @@ async function testGithubConnection() {
   }
 
   try {
-    const url = `/api/github/repos?username=${username}${token ? '&token=' + token : ''}`;
+    // Token 已保存在服务端，不需要通过 URL 传递
+    const url = `/api/github/repos?username=${encodeURIComponent(username)}`;
     const res = await fetch(url);
 
     if (!res.ok) {
@@ -444,7 +549,8 @@ async function syncGithubRepos() {
   if (!githubConfig.username) return;
 
   try {
-    const url = `/api/github/repos?username=${githubConfig.username}${githubConfig.token ? '&token=' + githubConfig.token : ''}`;
+    // Token 已保存在服务端，不需要通过 URL 传递
+    const url = `/api/github/repos?username=${encodeURIComponent(githubConfig.username)}`;
     const res = await fetch(url);
 
     if (!res.ok) {

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>我的导航</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=6" />
 </head>
 <body>
   
@@ -45,6 +45,8 @@
     <label class="dock-btn" title="导入配置" style="cursor: pointer;">
       ↑ <input type="file" id="fileInput" hidden accept=".json">
     </label>
+    <div class="divider"></div>
+    <button id="btnTheme" class="dock-btn" title="切换主题">🌙</button>
   </footer>
 
   <div id="modalOverlay" class="modal-overlay" hidden>
@@ -143,7 +145,14 @@
     </div>
   </div>
 
-  <script src="data.js"></script>
-  <script src="app.js"></script>
+  <script src="data.js?v=FIX_CACHE_ISSUE"></script>
+  <!-- 模块化 JS -->
+  <script src="js/utils.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/github.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
