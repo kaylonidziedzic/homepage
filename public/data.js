@@ -32,7 +32,6 @@ window.defaultData = {
       description: "一个现代化的个人主页，展示我的项目和技能",
       url: "https://github.com/yourusername/homepage",
       icon: "🏠",
-      status: "进行中",
       tech: ["HTML", "CSS", "JavaScript", "Node.js"],
       tags: ["前端", "后端"],
       stars: 0,
@@ -45,7 +44,6 @@ window.defaultData = {
       description: "生产环境监控数据采集系统",
       url: "https://atlas-01.internal:9090",
       icon: "📊",
-      status: "运行中",
       tech: ["Prometheus", "Grafana", "Docker"],
       tags: ["监控", "运维"],
       server: "atlas-01",
@@ -57,7 +55,6 @@ window.defaultData = {
       description: "团队代码托管与 CI/CD 平台",
       url: "https://gitlab.dev.example.com",
       icon: "🦊",
-      status: "运行中",
       tech: ["GitLab", "CI/CD", "Docker"],
       tags: ["开发", "CI"],
       server: "hera-dev",
@@ -70,7 +67,6 @@ window.defaultData = {
       description: "Portainer 容器管理面板",
       url: "https://portainer.local:9000",
       icon: "🐳",
-      status: "运行中",
       tech: ["Docker", "Go"],
       tags: ["运维", "工具"],
       source: "manual"
@@ -81,7 +77,6 @@ window.defaultData = {
       description: "Jellyfin 媒体服务器，存储电影和剧集",
       url: "https://jellyfin.local:8096",
       icon: "🎬",
-      status: "已完成",
       tech: ["C#", ".NET"],
       tags: ["娱乐", "自托管"],
       source: "manual"
@@ -92,7 +87,6 @@ window.defaultData = {
       description: "Syncthing 跨设备文件同步工具",
       url: "https://syncthing.local:8384",
       icon: "🔄",
-      status: "维护中",
       tech: ["Go", "P2P"],
       tags: ["工具", "存储"],
       source: "manual"
@@ -103,7 +97,6 @@ window.defaultData = {
       description: "Vaultwarden 密码管理器自托管实例",
       url: "https://vault.local",
       icon: "🔒",
-      status: "运行中",
       tech: ["Rust", "Security"],
       tags: ["安全", "工具"],
       source: "manual"
@@ -114,7 +107,6 @@ window.defaultData = {
       description: "Home Assistant 智能家居控制中心",
       url: "https://hass.local:8123",
       icon: "🏠",
-      status: "进行中",
       tech: ["Python", "IoT"],
       tags: ["IoT", "生活"],
       source: "manual"

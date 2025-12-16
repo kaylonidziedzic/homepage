@@ -346,35 +346,6 @@ body::before {
   margin-left: 8px;
 }
 
-.card-status.status-进行中 {
-  background: rgba(52, 199, 89, 0.1);
-  color: #34c759;
-  border-color: rgba(52, 199, 89, 0.2);
-}
-
-.card-status.status-已完成 {
-  background: rgba(88, 86, 214, 0.1);
-  color: #5856d6;
-  border-color: rgba(88, 86, 214, 0.2);
-}
-
-.card-status.status-运行中 {
-  background: rgba(48, 209, 88, 0.1);
-  color: #30d158;
-  border-color: rgba(48, 209, 88, 0.2);
-}
-
-.card-status.status-维护中 {
-  background: rgba(255, 159, 10, 0.1);
-  color: #ff9f0a;
-  border-color: rgba(255, 159, 10, 0.2);
-}
-
-.card-status.status-已暂停 {
-  background: rgba(142, 142, 147, 0.1);
-  color: #8e8e93;
-  border-color: rgba(142, 142, 147, 0.2);
-}
 
 /* 技术栈标签 */
 .card-tech {
@@ -578,14 +549,14 @@ body::before {
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 }
 
-/* ����״ָ̬ʾ�� */
+/* ����״ָ̬ʾ�� */
 .ping-dot {
   display: inline-block;
   width: 8px;
   height: 8px;
   border-radius: 50%;
   margin-left: 6px;
-  background-color: #ccc; /* Ĭ�ϻ�ɫ */
+  background-color: #ccc; /* Ĭ�ϻ�ɫ */
   vertical-align: middle;
   transition: background-color 0.3s;
 }
@@ -596,12 +567,12 @@ body::before {
 }
 
 .ping-dot.online {
-  background-color: #10b981; /* ��ɫ */
+  background-color: #10b981; /* ��ɫ */
   box-shadow: 0 0 4px #10b981;
 }
 
 .ping-dot.offline {
-  background-color: #ef4444; /* ��ɫ */
+  background-color: #ef4444; /* ��ɫ */
 }
 
 @keyframes pulse {
@@ -609,3 +580,8 @@ body::before {
   50% { opacity: 1; }
   100% { opacity: 0.6; }
 }
+
+/* ��̬״̬��ǩ */
+.status-checking { background-color: #f3f4f6; color: #6b7280; animation: pulse 1.5s infinite; }
+.status-online { background-color: #d1fae5; color: #059669; }
+.status-offline { background-color: #fee2e2; color: #ef4444; }

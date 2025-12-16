@@ -127,9 +127,9 @@ const Render = {
     const safeName = Utils.escapeHtml(proj.name);
     const safeUrl = Utils.isValidUrl(proj.url) ? proj.url : '#';
 
-    // 状态标签
-    const statusHtml = proj.status
-      ? `<div class="card-status status-${Utils.escapeHtml(proj.status)}">${Utils.escapeHtml(proj.status)}</div>`
+    // 状态标签 - 所有 http(s) URL 都进行实时检测
+    const statusHtml = proj.url && proj.url.startsWith('http')
+      ? `<div class="card-status status-checking">检测中...</div>`
       : '';
 
     // GitHub 来源标签
@@ -161,8 +161,6 @@ const Render = {
             <div class="card-name">
               ${safeName}
               ${starsHtml}
-              <!-- 在线状态指示灯 -->
-              ${proj.source === "manual" ? `<span class="ping-dot pending" title="检测中..."></span>` : ""}
             </div>
             <div class="card-desc">${desc}</div>
           </div>

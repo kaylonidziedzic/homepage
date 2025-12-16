@@ -123,36 +123,62 @@ app.get('/api/github/repos', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-  // 7. API: 检查网站状态
-  app.get('/api/check-status', async (req, res) => {
-    const { url } = req.query;
-    if (!url) {
-      return res.status(400).json({ error: 'URL required' });
-    }
+});
+// 7. API: 检查网站状态
+app.get('/api/check-status', async (req, res) => {
+  const { url } = req.query;
+  if (!url) {
+    return res.status(400).json({ error: 'URL required' });
+  }
+
+  const TIMEOUT_MS = 5000;
+
+  // 辅助函数：带超时的 fetch
+  async function fetchWithTimeout(targetUrl, method) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
     try {
-      // 设置 3秒超时，避免请求堆积
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 3000);
-
-      const response = await fetch(url, {
-        method: "HEAD", // 只请求头，减少流量
+      const response = await fetch(targetUrl, {
+        method,
         signal: controller.signal,
         headers: {
-          "User-Agent": "Mozilla/5.0 (compatible; StatusBot/1.0)"
-        }
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        },
+        redirect: 'follow'
       });
-
       clearTimeout(timeout);
-      // 只要有响应（即使 404/403/500）都算服务器在线
-      res.json({ online: true, status: response.status });
-    } catch (error) {
-      res.json({ online: false, error: error.message });
+      return response;
+    } catch (err) {
+      clearTimeout(timeout);
+      throw err;
     }
-  });
+  }
 
-  // 8. 启动服务
-  app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
-  });
+  try {
+    let response;
+    try {
+      // 先尝试 HEAD 请求
+      response = await fetchWithTimeout(url, "HEAD");
+    } catch (headErr) {
+      // HEAD 失败，尝试 GET（某些服务/CDN 不支持 HEAD）
+      // 为 GET 请求创建新的超时控制器
+      if (headErr.name !== 'AbortError') {
+        response = await fetchWithTimeout(url, "GET");
+      } else {
+        throw headErr;
+      }
+    }
+
+    // 只要有响应（即使 404/403/500）都算服务器在线
+    res.json({ online: true, status: response.status });
+  } catch (error) {
+    res.json({ online: false, error: error.message });
+  }
+});
+
+// 8. 启动服务
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});
 

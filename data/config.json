@@ -46,8 +46,7 @@
                 "自建",
                 "API"
             ],
-            "source": "manual",
-            "status": "运行中"
+            "source": "manual"
         },
         {
             "id": "proj-nav-2",
@@ -59,8 +58,7 @@
                 "自建",
                 "运维"
             ],
-            "source": "manual",
-            "status": "运行中"
+            "source": "manual"
         },
         {
             "id": "proj-nav-3",
@@ -72,8 +70,7 @@
                 "自建",
                 "媒体"
             ],
-            "source": "manual",
-            "status": "运行中"
+            "source": "manual"
         },
         {
             "id": "proj-nav-4",
@@ -85,8 +82,7 @@
                 "自建",
                 "存储"
             ],
-            "source": "manual",
-            "status": "运行中"
+            "source": "manual"
         },
         {
             "id": "proj-nav-5",
@@ -98,8 +94,7 @@
                 "自建",
                 "API"
             ],
-            "source": "manual",
-            "status": "运行中"
+            "source": "manual"
         },
         {
             "id": "proj-nav-6",
@@ -111,8 +106,7 @@
                 "自建",
                 "工具"
             ],
-            "source": "manual",
-            "status": "运行中"
+            "source": "manual"
         },
         {
             "id": "proj-nav-7",
@@ -124,8 +118,7 @@
                 "自建",
                 "监控"
             ],
-            "source": "manual",
-            "status": "运行中"
+            "source": "manual"
         },
         {
             "id": "proj-nav-8",
@@ -137,8 +130,7 @@
                 "自建",
                 "PT"
             ],
-            "source": "manual",
-            "status": "运行中"
+            "source": "manual"
         },
         {
             "id": "proj-nav-9",
@@ -150,8 +142,7 @@
                 "自建",
                 "脚本"
             ],
-            "source": "manual",
-            "status": "运行中"
+            "source": "manual"
         },
         {
             "id": "proj-nav-10",
@@ -163,8 +154,7 @@
                 "自建",
                 "任务"
             ],
-            "source": "manual",
-            "status": "运行中"
+            "source": "manual"
         },
         {
             "id": "proj-nav-11",
@@ -175,8 +165,7 @@
             "tags": [
                 "自建"
             ],
-            "source": "manual",
-            "status": "运行中"
+            "source": "manual"
         },
         {
             "id": "proj-nav-12",
@@ -188,8 +177,7 @@
                 "自建",
                 "DNS"
             ],
-            "source": "manual",
-            "status": "运行中"
+            "source": "manual"
         },
         {
             "id": "proj-nav-13",
@@ -201,8 +189,7 @@
                 "自建",
                 "图床"
             ],
-            "source": "manual",
-            "status": "运行中"
+            "source": "manual"
         },
         {
             "id": "proj-private-demo",
@@ -210,7 +197,6 @@
             "description": "输入暗号后才能看到我",
             "url": "https://private.example.com",
             "icon": "🕵️",
-            "status": "已完成",
             "tech": [
                 "Private"
             ],

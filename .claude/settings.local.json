@@ -9,7 +9,12 @@
       "Bash(findstr:*)",
       "Bash(taskkill:*)",
       "Bash(cmd //c \"taskkill /PID 30988 /F\")",
-      "Bash(cmd //c \"taskkill /PID 25760 /F\")"
+      "Bash(cmd //c \"taskkill /PID 25760 /F\")",
+      "Bash(cmd:*)",
+      "Bash(node:*)",
+      "Bash(dir:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
