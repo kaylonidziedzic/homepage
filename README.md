@@ -13,16 +13,27 @@
 | 📱 **响应式设计** | 完美适配桌面和移动设备 |
 | 🏷️ **标签分类** | 按标签筛选和分组展示项目 |
 
-## 🚀 快速部署
+## 🚀 一键部署
 
-### Vercel（推荐）
+### Vercel（推荐，支持全部功能）
 
-1. Fork 本仓库
-2. 登录 [Vercel](https://vercel.com)
-3. 点击 **Add New Project** → 导入仓库
-4. 点击 **Deploy**
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/kaylonidziedzic/homepage)
 
-### 本地运行
+### Cloudflare Pages
+
+[![Deploy to Cloudflare Pages](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/kaylonidziedzic/homepage)
+
+> ⚠️ Cloudflare Pages 仅支持静态托管，GitHub 同步和状态检测 API 将不可用
+
+### 腾讯云 EdgeOne
+
+1. 登录 [EdgeOne 控制台](https://console.cloud.tencent.com/edgeone)
+2. 创建 Pages 项目 → 关联 GitHub 仓库
+3. 输出目录设为 `public`
+
+> ⚠️ EdgeOne 仅支持静态托管，后端 API 功能将不可用
+
+## 💻 本地运行
 
 ```bash
 # 安装依赖
@@ -83,6 +94,15 @@ homepage/
 ├── server.js           # 后端服务
 └── package.json
 ```
+
+## 🌐 平台功能对比
+
+| 功能 | Vercel | Cloudflare Pages | EdgeOne |
+|------|:------:|:----------------:|:-------:|
+| 静态页面 | ✅ | ✅ | ✅ |
+| 实时状态检测 | ✅ | ❌ | ❌ |
+| GitHub 同步 | ✅ | ❌ | ❌ |
+| 隐私模式 | ✅ | ✅ | ✅ |
 
 ## 📄 License
 
