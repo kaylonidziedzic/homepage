@@ -2,7 +2,7 @@
     "secretCode": "hello",
     "profile": {
         "name": "你的名字",
-        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=YourName",
+        "avatar": "/avatar.png",
         "bio": "全栈开发者 | 开源爱好者 | 终身学习者",
         "location": "中国",
         "socials": [
