@@ -1,16 +1,17 @@
 // 默认数据结构
 window.defaultData = {
+  // 隐私暗号
+  secretCode: "hello",
+
   // 个人信息
   profile: {
-    name: "Nax",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Nax",
-    bio: "Full-Stack Developer | Open Source Enthusiast",
-    location: "China",
+    name: "你的名字",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Demo",
+    bio: "全栈开发者 | 开源爱好者",
+    location: "中国",
     socials: [
-      { name: "GitHub", icon: "🐙", url: "https://github.com/yourusername" },
-      { name: "Blog", icon: "✍️", url: "https://yourblog.com" },
-      { name: "Email", icon: "📧", url: "mailto:your@email.com" },
-      { name: "Twitter", icon: "🐦", url: "https://twitter.com/yourusername" }
+      { name: "GitHub", icon: "🐙", url: "https://github.com" },
+      { name: "Email", icon: "📧", url: "mailto:example@email.com" }
     ]
   },
 
@@ -18,101 +19,43 @@ window.defaultData = {
   githubConfig: {
     enabled: false,
     username: "",
-    token: "",  // 可选，用于提高 API 限额
-    syncRepos: true,  // 是否同步仓库
-    excludeForked: true,  // 排除 fork 的仓库
-    excludePrivate: false  // 排除私有仓库
+    syncRepos: false,
+    excludeForked: true,
+    excludePrivate: false
   },
 
   // 项目列表
   projects: [
     {
-      id: "proj-1",
-      name: "个人主页项目",
-      description: "一个现代化的个人主页，展示我的项目和技能",
-      url: "https://github.com/yourusername/homepage",
-      icon: "🏠",
-      tech: ["HTML", "CSS", "JavaScript", "Node.js"],
-      tags: ["前端", "后端"],
-      stars: 0,
-      lastUpdate: "2025-12-12",
-      source: "manual"  // manual: 手动添加, github: GitHub 同步
-    },
-    {
-      id: "proj-2",
-      name: "Prometheus 监控",
-      description: "生产环境监控数据采集系统",
-      url: "https://atlas-01.internal:9090",
-      icon: "📊",
-      tech: ["Prometheus", "Grafana", "Docker"],
-      tags: ["监控", "运维"],
-      server: "atlas-01",
+      id: "demo-1",
+      name: "Google",
+      description: "全球最大的搜索引擎",
+      url: "https://www.google.com",
+      icon: "🔍",
+      tags: ["搜索", "工具"],
       source: "manual"
     },
     {
-      id: "proj-3",
-      name: "GitLab 代码托管",
-      description: "团队代码托管与 CI/CD 平台",
-      url: "https://gitlab.dev.example.com",
-      icon: "🦊",
-      tech: ["GitLab", "CI/CD", "Docker"],
-      tags: ["开发", "CI"],
-      server: "hera-dev",
-      source: "manual"
-    }
-    ,
-    {
-      id: "proj-4",
-      name: "Docker 管理",
-      description: "Portainer 容器管理面板",
-      url: "https://portainer.local:9000",
-      icon: "🐳",
-      tech: ["Docker", "Go"],
-      tags: ["运维", "工具"],
+      id: "demo-2",
+      name: "GitHub",
+      description: "全球最大的代码托管平台",
+      url: "https://github.com",
+      icon: "🐙",
+      tags: ["开发", "工具"],
       source: "manual"
     },
     {
-      id: "proj-5",
-      name: "家庭影院",
-      description: "Jellyfin 媒体服务器，存储电影和剧集",
-      url: "https://jellyfin.local:8096",
-      icon: "🎬",
-      tech: ["C#", ".NET"],
-      tags: ["娱乐", "自托管"],
-      source: "manual"
-    },
-    {
-      id: "proj-6",
-      name: "文件同步",
-      description: "Syncthing 跨设备文件同步工具",
-      url: "https://syncthing.local:8384",
-      icon: "🔄",
-      tech: ["Go", "P2P"],
-      tags: ["工具", "存储"],
-      source: "manual"
-    },
-    {
-      id: "proj-7",
-      name: "密码管理",
-      description: "Vaultwarden 密码管理器自托管实例",
-      url: "https://vault.local",
+      id: "demo-private",
+      name: "私密链接示例",
+      description: "在搜索框输入暗号 'hello' 可解锁",
+      url: "https://example.com",
       icon: "🔒",
-      tech: ["Rust", "Security"],
-      tags: ["安全", "工具"],
-      source: "manual"
-    },
-    {
-      id: "proj-8",
-      name: "智能家居",
-      description: "Home Assistant 智能家居控制中心",
-      url: "https://hass.local:8123",
-      icon: "🏠",
-      tech: ["Python", "IoT"],
-      tags: ["IoT", "生活"],
-      source: "manual"
+      tags: ["私密"],
+      source: "manual",
+      private: true
     }
   ]
 };
 
-// 兼容旧版本（如果有人还在用 defaultServices）
+// 兼容旧版本
 window.defaultServices = window.defaultData.projects;

@@ -4,9 +4,9 @@
 
 ## 🎯 在线演示
 
-**[👉 点击查看 Demo](https://homepage-demo-nax.vercel.app)**
+**[👉 点击查看 Demo](https://homepage-79h.pages.dev)**
 
-> 提示：在搜索框输入 `hello` 可解锁隐藏链接
+> 💡 提示：在搜索框输入 `hello` 可解锁隐藏的私密链接
 
 ## ✨ 功能特性
 
